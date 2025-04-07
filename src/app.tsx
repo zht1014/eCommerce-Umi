@@ -33,7 +33,7 @@ export async function getInitialState(): Promise<{
     return undefined;
   };
   // 如果不是登录页面，执行
-  /* const { location } = history;
+  const { location } = history;
   if (location.pathname !== loginPath) {
     const currentUser = await fetchUserInfo();
     return {
@@ -41,7 +41,7 @@ export async function getInitialState(): Promise<{
       currentUser,
       settings: defaultSettings as Partial<LayoutSettings>,
     };
-  } */
+  }
   return {
     fetchUserInfo,
     settings: defaultSettings as Partial<LayoutSettings>,
@@ -64,11 +64,11 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     },
     footerRender: () => <Footer />,
     onPageChange: () => {
-      const { location } = history;
+      /* const { location } = history;
       // 如果没有登录，重定向到 login
       if (!initialState?.currentUser && location.pathname !== loginPath) {
         history.push(loginPath);
-      }
+      } */
     },
     bgLayoutImgList: [
       {

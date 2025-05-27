@@ -1,5 +1,5 @@
 import { Footer } from '@/components';
-import { login } from '@/services/ant-design-pro/api';
+import { currentUser, login } from '@/services/ant-design-pro/api';
 import { getFakeCaptcha } from '@/services/ant-design-pro/login';
 import {
   AlipayCircleOutlined,
@@ -21,6 +21,8 @@ import { createStyles } from 'antd-style';
 import React, { useState } from 'react';
 import { flushSync } from 'react-dom';
 import Settings from '../../../../config/defaultSettings';
+import axios from 'axios'
+
 
 const useStyles = createStyles(({ token }) => {
   return {
@@ -116,22 +118,60 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (values: API.LoginParams) => {
     try {
-      // 登录
-      const msg = await login({ ...values, type });
-      if (msg.status === 'ok') {
+      const msg = await axios.post('http://146.190.90.142:30080/users/login', {
+        username: values.username,
+        password: values.password
+      })
+      if (msg.data.success === true) {
         const defaultLoginSuccessMessage = intl.formatMessage({
           id: 'pages.login.success',
           defaultMessage: '登录成功！',
         });
         message.success(defaultLoginSuccessMessage);
+        const token = msg.data.data
+        const userResponse = await axios.get('http://146.190.90.142:30080/users/getCurrentUserInfo', {
+        headers: {
+          'Authorization': 'Bearer ' + token,
+        },
+      });
+
+      const userData = userResponse.data.data;  
+      console.log('Response:', userData);
+
+      const userInfo = {
+        name: userData.username || values.username,
+        token: token,
+        id: userData.userId,
+        email: userData.email,
+      };
+        
+  
+        // 保存到 localStorage
+        localStorage.setItem('currentUser', JSON.stringify(userInfo));
+        localStorage.setItem('token', token);
+        
+        flushSync(()=>{
+          setInitialState((s) => ({
+            ...s,
+            currentUser: {
+              ...s?.currentUser,
+              name: values.username, 
+
+            },
+          }))
+
+        })
         await fetchUserInfo();
         const urlParams = new URL(window.location.href).searchParams;
-        history.push(urlParams.get('redirect') || '/');
+        history.push(urlParams.get('redirect') || '/');//在这可以判断，如果是admin,access给他保存成access：admin
+        /* if (userInfo.role === 'admin') {
+          history.push('/admin');
+        } */
         return;
       }
       console.log(msg);
       // 如果失败去设置用户错误信息
-      setUserLoginState(msg);
+      setUserLoginState(msg.data);
     } catch (error) {
       const defaultLoginFailureMessage = intl.formatMessage({
         id: 'pages.login.failure',
@@ -167,8 +207,8 @@ const Login: React.FC = () => {
             maxWidth: '75vw',
           }}
           logo={<img alt="logo" src="/logo.svg" />}
-          title="Ant Design"
-          subTitle={intl.formatMessage({ id: 'pages.layouts.userLayout.title' })}
+          title="E-Commerse Platform"
+          /* subTitle={intl.formatMessage({ id: 'pages.layouts.userLayout.title' })} */
           initialValues={{
             autoLogin: true,
           }}
@@ -176,7 +216,7 @@ const Login: React.FC = () => {
             <FormattedMessage
               key="loginWith"
               id="pages.login.loginWith"
-              defaultMessage="其他登录方式"
+              defaultMessage="Other login options"
             />,
             <ActionIcons key="icons" />,
           ]}
@@ -246,7 +286,7 @@ const Login: React.FC = () => {
                 }}
                 placeholder={intl.formatMessage({
                   id: 'pages.login.password.placeholder',
-                  defaultMessage: '密码: ant.design',
+                  defaultMessage: 'password: ant.design',
                 })}
                 rules={[
                   {

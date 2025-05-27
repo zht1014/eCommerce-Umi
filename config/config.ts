@@ -4,6 +4,8 @@ import { join } from 'path';
 import defaultSettings from './defaultSettings';
 import proxy from './proxy';
 import routes from './routes';
+import { title } from 'process';
+import Layout from '@/.umi/plugin-layout/Layout';
 
 const { REACT_APP_ENV = 'dev' } = process.env;
 
@@ -85,8 +87,9 @@ export default defineConfig({
    * @name layout 插件
    * @doc https://umijs.org/docs/max/layout-menu
    */
-  title: 'Ant Design Pro',
+  title: 'Ecommerse Platform',
   layout: {
+    Layout:'top',
     locale: true,
     ...defaultSettings,
   },
@@ -157,6 +160,7 @@ export default defineConfig({
       projectName: 'swagger',
     },
   ],
+  
   /**
    * @name 是否开启 mako
    * @description 使用 mako 极速研发

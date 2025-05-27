@@ -49,4 +49,10 @@ export default {
   'menu.editor.flow': 'Flow Editor',
   'menu.editor.mind': 'Mind Editor',
   'menu.editor.koni': 'Koni Editor',
+    'menu.center': 'Profile Center',
+    'menu.settings': 'Profile Settings',
+    'menu.logout': 'Logout',
+  'menu.ShoppingCart': 'Shopping Cart',
+
+  
 };

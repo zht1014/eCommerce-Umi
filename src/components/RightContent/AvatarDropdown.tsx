@@ -1,6 +1,6 @@
 import { outLogin } from '@/services/ant-design-pro/api';
 import { LogoutOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
-import { history, useModel } from '@umijs/max';
+import { history, useIntl, useModel } from '@umijs/max';
 import { Spin } from 'antd';
 import type { MenuProps } from 'antd';
 import { createStyles } from 'antd-style';
@@ -68,6 +68,8 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu, childre
       flushSync(() => {
         setInitialState((s) => ({ ...s, currentUser: undefined }));
       });
+      localStorage.removeItem('currentUser');
+      localStorage.removeItem('token');
       loginOut();
       return;
     }
@@ -96,28 +98,30 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu, childre
     return loading;
   }
 
+  const intl = useIntl();
+
   const menuItems = [
     ...(menu
       ? [
-          {
-            key: 'center',
-            icon: <UserOutlined />,
-            label: '个人中心',
-          },
-          {
-            key: 'settings',
-            icon: <SettingOutlined />,
-            label: '个人设置',
-          },
-          {
-            type: 'divider' as const,
-          },
-        ]
+        {
+          key: 'center',
+          icon: <UserOutlined />,
+          label: intl.formatMessage({ id: 'menu.center', defaultMessage: '个人中心' }),
+        },
+        {
+          key: 'settings',
+          icon: <SettingOutlined />,
+          label: intl.formatMessage({ id: 'menu.settings', defaultMessage: '个人设置' }),
+        },
+        {
+          type: 'divider' as const,
+        },
+      ]
       : []),
     {
       key: 'logout',
       icon: <LogoutOutlined />,
-      label: '退出登录',
+      label: intl.formatMessage({ id: 'menu.logout', defaultMessage: '退出登录' }),
     },
   ];
 

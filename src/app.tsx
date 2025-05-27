@@ -8,6 +8,7 @@ import { history, Link } from '@umijs/max';
 import React from 'react';
 import defaultSettings from '../config/defaultSettings';
 import { errorConfig } from './requestErrorConfig';
+import axios from 'axios'
 
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
@@ -15,7 +16,7 @@ const loginPath = '/user/login';
 /**
  * @see  https://umijs.org/zh-CN/plugins/plugin-initial-state
  * */
-export async function getInitialState(): Promise<{
+export async function getInitialState(): Promise<{ //InitialState提供一个全局状态，所以每个页面在写的时候应该从localstorage拿到数据来更新InitialState
   settings?: Partial<LayoutSettings>;
   currentUser?: API.CurrentUser;
   loading?: boolean;
@@ -32,18 +33,29 @@ export async function getInitialState(): Promise<{
     }
     return undefined;
   };
-  // 如果不是登录页面，执行
+
   const { location } = history;
-  if (location.pathname !== loginPath) {
-    const currentUser = await fetchUserInfo();
-    return {
-      fetchUserInfo,
-      currentUser,
-      settings: defaultSettings as Partial<LayoutSettings>,
-    };
+  const localUserStr = localStorage.getItem('currentUser');
+  const currentUser = localUserStr ? JSON.parse(localUserStr) : null;
+  console.log(currentUser)
+
+
+  //再加一个，验证token是否有效，无效也返回登录页面
+  /*   const valid = await axios.post("http://178.128.223.196:8080/users/validateToken",{
+      token: currentUser.token
+    })
+    if(!valid.data.success){
+      history.push(loginPath);
+    } */
+  // 如果用户未登录，并且当前不在登录页，则跳转登录页
+  if (!currentUser && location.pathname !== loginPath) {
+    console.log('wrong token')
+    history.push(loginPath);
   }
+
   return {
     fetchUserInfo,
+    currentUser: currentUser || undefined, // 确保未登录时返回 undefined
     settings: defaultSettings as Partial<LayoutSettings>,
   };
 }
@@ -51,25 +63,26 @@ export async function getInitialState(): Promise<{
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
 export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
   return {
+    title: "Ecommerse Platform",
     actionsRender: () => [<Question key="doc" />, <SelectLang key="SelectLang" />],
     avatarProps: {
       src: initialState?.currentUser?.avatar,
       title: <AvatarName />,
       render: (_, avatarChildren) => {
-        return <AvatarDropdown>{avatarChildren}</AvatarDropdown>;
+        return <AvatarDropdown menu={true}>{avatarChildren}</AvatarDropdown>;
       },
     },
-    waterMarkProps: {
+    /* waterMarkProps: {
       content: initialState?.currentUser?.name,
-    },
+    }, */
     footerRender: () => <Footer />,
-    onPageChange: () => {
-      /* const { location } = history;
-      // 如果没有登录，重定向到 login
-      if (!initialState?.currentUser && location.pathname !== loginPath) {
-        history.push(loginPath);
-      } */
+    onPageChange: async () => {
+      const localUserStr = localStorage.getItem('currentUser');
+      const currentUser = localUserStr ? JSON.parse(localUserStr) : null;
+      //console.log(currentUser.token)
+      
     },
+    /* menuRender= 'false', */
     bgLayoutImgList: [
       {
         src: 'https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/D2LWSqNny4sAAAAAAAAAAAAAFl94AQBr',
@@ -92,11 +105,11 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     ],
     links: isDev
       ? [
-          <Link key="openapi" to="/umi/plugin/openapi" target="_blank">
-            <LinkOutlined />
-            <span>OpenAPI 文档</span>
-          </Link>,
-        ]
+        <Link key="openapi" to="/umi/plugin/openapi" target="_blank">
+          <LinkOutlined />
+          <span>OpenAPI 文档</span>
+        </Link>,
+      ]
       : [],
     menuHeaderRender: undefined,
     // 自定义 403 页面
@@ -107,7 +120,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
       return (
         <>
           {children}
-          {isDev && (
+          {/* isDev && */ (
             <SettingDrawer
               disableUrlParams
               enableDarkTheme
@@ -123,6 +136,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
         </>
       );
     },
+
     ...initialState?.settings,
   };
 };

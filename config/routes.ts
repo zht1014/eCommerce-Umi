@@ -1,4 +1,8 @@
-﻿/**
+﻿import { layout } from "@/app";
+import component from "@/locales/bn-BD/component";
+import { Children } from "react";
+
+/**
  * @name umi 的路由配置
  * @description 只支持 path,component,routes,redirect,wrappers,name,icon 的配置
  * @param path  path 只支持两种占位符配置，第一种是动态参数 :id 的形式，第二种是 * 通配符，通配符只能出现路由字符串的最后。
@@ -11,6 +15,15 @@
  * @doc https://umijs.org/docs/guides/routes
  */
 export default [
+  {
+    path: '/account',
+    /* layout: false, */
+    routes: [{
+      path: '/account/center',
+      component: './Account/Center'
+    }
+    ]
+  },
   {
     path: '/user',
     layout: false,
@@ -27,6 +40,12 @@ export default [
     name: 'welcome',
     icon: 'smile',
     component: './Welcome',
+  },
+  {
+    path: '/ShoppingCart', 
+    name: 'ShoppingCart',
+    icon: 'ShoppingCart',
+    component:'./ShoppingCart'
   },
   {
     path: '/admin',

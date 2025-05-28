@@ -335,11 +335,14 @@ const Welcome: React.FC = () => {
               }}
               onSearch={(value) => {
                 handleSearch(value);
+                setCurrentKeyword(value)
                 setCurrentPage(1);
                 const newFilters = { ...filters, name: value };
                 setFilters(newFilters);
               }}
-              onChange={(e) => setCurrentKeyword(e.target.value)}
+              onChange={(e) => {
+                setCurrentKeyword(e.target.value)
+              }}
             />
 
 
@@ -366,9 +369,9 @@ const Welcome: React.FC = () => {
                   style={{ width: '100%' }}
                 >
                   <Option value="">All</Option>
-                  <Option value="Electronics">Electronics</Option>
-                  <Option value="Clothing">Clothing</Option>
-                  <Option value="Home">Home</Option>
+                  <Option value="Smartphones">Smartphones</Option>
+                  <Option value="Laptops">Laptops</Option>
+                  <Option value="Pad">Pad</Option>
                 </Select>
               </Col>
               <Col span={6}>

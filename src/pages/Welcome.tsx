@@ -163,7 +163,8 @@ const Welcome: React.FC = () => {
       const res = await axios.post('http://146.190.90.142:30080/shoppingcarts/cart/add', {
         userId: currentUser.id,
         productId: product.id,
-        quantity: 1, // default quantity 1
+        quantity: 1, 
+        price: product.price
       }, {
         headers: {
           Authorization: `Bearer ${currentUser.token}`,

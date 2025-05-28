@@ -1,6 +1,6 @@
 import { PageContainer, ProCard } from '@ant-design/pro-components';
 import { useModel } from '@umijs/max';
-import { Button, Card, Empty, Input, Modal, Tag, theme, Image, message, Spin, List, Rate, Select, InputNumber, Row, Col, } from 'antd';
+import { Button, Card, Empty, Input, Modal, Tag, theme, Image, message, Spin, List, Rate, Select, InputNumber, Row, Col, Pagination, } from 'antd';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios'
 import styled from 'styled-components';
@@ -72,70 +72,158 @@ const Welcome: React.FC = () => {
   const [orderModalVisible, setOrderModalVisible] = useState(false);
   const [selectedQuantity, setSelectedQuantity] = useState<number>(1);
   const [selectedAddress, setSelectedAddress] = useState<string>('Default address');
+  const [addressOptions, setAddressOptions] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [total, setTotal] = useState<number>(0);
+  const [filters, setFilters] = useState<Filters>({
+    category: '',
+    minPrice: undefined,
+    maxPrice: undefined,
+    rating: undefined,
+  });
+
+
+
+  const handleFilter = async (nextFilters?: Filters) => {
+    const appliedFilters = nextFilters || filters; // 优先用最新的
+    setLoading(true);
+    try {
+      const response = await axios.get(`http://146.190.90.142:30080/products/products/filter`, {
+        params: {
+          category: appliedFilters.category || '',
+          minPrice: appliedFilters.minPrice || '',
+          maxPrice: appliedFilters.maxPrice || '',
+          rating: appliedFilters.rating || '',
+        },
+      });
+      if (response.data.success) {
+        setProducts(response.data.data || []);
+        setTotal(response.data.data.length);
+      } else {
+        message.error('No products found');
+      }
+    } catch (err) {
+      message.error('Filter failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+
+  const handleSearch = async (keyword: string) => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`http://146.190.90.142:30080/products/products/search?keyword=${keyword}`);
+      if (response.data.success) {
+        setProducts(response.data.data || []);
+        setTotal(response.data.data.length); 
+      } else {
+        message.error('No products found');
+      }
+    } catch (err) {
+      message.error('Search failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  const fetchProductsByPage = async (page = 1, size = 10) => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`http://146.190.90.142:30080/products/products/page?page=${page}&size=${size}`);
+      if (response.data.success) {
+        setProducts(response.data.data.records || []);
+        setTotal(response.data.data.total || 0);
+      }
+    } catch (err) {
+      message.error('Failed to fetch products by page');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProductsByPage(currentPage, pageSize);
+  }, [currentPage, pageSize]);
+
 
   const handleAddToCart = async (product) => {
-  try {
-    const localUserStr = localStorage.getItem('currentUser');
-    const currentUser = localUserStr ? JSON.parse(localUserStr) : null;
+    try {
+      const localUserStr = localStorage.getItem('currentUser');
+      const currentUser = localUserStr ? JSON.parse(localUserStr) : null;
 
-    if (!currentUser) {
-      message.warning('请先登录！');
-      return;
+      if (!currentUser) {
+        message.warning('Please log in first!');
+        return;
+      }
+
+      const res = await axios.post('http://146.190.90.142:30080/shoppingcarts/cart/add', {
+        userId: currentUser.id,
+        productId: product.id,
+        quantity: 1, // default quantity 1
+      }, {
+        headers: {
+          Authorization: `Bearer ${currentUser.token}`,
+        },
+      });
+
+      if (res.data.success) {
+        message.success('Added to cart successfully!');
+      } else {
+        message.error('Failed to add to cart!');
+      }
+    } catch (error) {
+      console.error('Failed to add to cart:', error);
+      message.error('Failed to add to cart, please try again later.');
     }
+  };
 
-    const res = await axios.post('http://146.190.90.142:30080/shoppingcarts/cart/add', {
-      userId: currentUser.id,
-      productId: product.id,
-      quantity: 1, // 默认数量1
-    }, {
-      headers: {
-        Authorization: `Bearer ${currentUser.token}`,
-      },
-    });
 
-    if (res.data.success) {
-      message.success('已成功加入购物车！');
-    } else {
-      message.error('加入购物车失败！');
-    }
-  } catch (error) {
-    console.error('加入购物车失败:', error);
-    message.error('加入购物车失败，请稍后再试！');
-  }
-};
-
-  // 示例地址列表
-  const addressOptions = [
+ 
+  /* const addressOptions = [
     '123 Main Street',
     '456 Park Avenue',
     '789 High Street',
-  ];
+  ]; */
+  const localUserStr = localStorage.getItem('currentUser');
+  const currentUser = localUserStr ? JSON.parse(localUserStr) : null;
+  console.log(currentUser)
 
-  // 点击 "购买" 图标时触发
-  const handleBuyClick = (product: any) => {
+  const handleBuyClick = async (product: any) => {
     setSelectedProductForOrder(product);
     setSelectedQuantity(1);
-    setSelectedAddress(addressOptions[0]);
+    const res = await axios.get(`http://146.190.90.142:30080/users/api/addresses/user/${currentUser.id}`);
+    const addresses = res.data || [];
+    console.log(addresses)
+
+
+    const formattedAddresses = addresses.map((addr: any) => `${addr.street}, ${addr.city}, ${addr.state}`);
+
+
+    setSelectedAddress(formattedAddresses[0]);
+    setAddressOptions(formattedAddresses);
     setOrderModalVisible(true);
-  };
+  }
 
   // 确认下单
   const confirmOrder = async () => {
+    console.log({
+        "productId": selectedProductForOrder.id,
+        "quantity": selectedQuantity,
+        "shippingAddress": selectedAddress,
+        "userId": currentUser.id
+      })
     if (!selectedProductForOrder) return;
 
     try {
-      const response = await axios.post('http://146.190.90.142:30082/orders/orders', {
-        userId: 1,
-        orderStatus: 'Pending',
-        totalAmount: selectedQuantity * selectedProductForOrder.price,
-        paymentStatus: 'Pending',
-        shippingAddress: selectedAddress,
-        orderDate: new Date().toISOString(),
-        deliveryDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-        createUser: 'user1',
-        updateUser: 'user1',
-        createDatetime: new Date().toISOString(),
-        updateDatetime: new Date().toISOString(),
+      const response = await axios.post('http://146.190.90.142:30080/orders/orders/direct', {
+        "productId": selectedProductForOrder.id,
+        "quantity": selectedQuantity,
+        "shippingAddress": selectedAddress,
+        "userId": 1   //currentUser.id
       });
 
       if (response.data.success) {
@@ -158,16 +246,8 @@ const Welcome: React.FC = () => {
     rating?: number | null;
   }
 
-  const [filters, setFilters] = useState<Filters>({
-    category: '',
-    minPrice: undefined,
-    maxPrice: undefined,
-    rating: undefined,
-  });
 
 
-
-  // 获取 Feedback 函数
   const fetchFeedback = async (productId: number) => {
     try {
       setLoadingFeedback(true);
@@ -183,7 +263,7 @@ const Welcome: React.FC = () => {
     }
   };
 
-  // 点击卡片时触发
+
   const handlePreview = (product: any) => {
     setSelectedProduct(product);
     setModalVisible(true);
@@ -195,10 +275,11 @@ const Welcome: React.FC = () => {
     try {
       const res = await axios.get('http://146.190.90.142:30080/products/products');
       if (res.data.success) {
+        console.log(res)
         setProducts(res.data.data);
       }
     } catch (err) {
-      console.error('获取失败', err);
+      console.error('failed getting products', err);
     } finally {
       setLoading(false);
     }
@@ -241,17 +322,18 @@ const Welcome: React.FC = () => {
             }}
           >
             <Input.Search
-              placeholder="..."
+              placeholder="Search products by keyword..."
               enterButton="Search"
               style={{
                 maxWidth: 400,
                 width: '100%',
               }}
               onSearch={(value) => {
-                // 这里处理搜索逻辑
-                console.log('搜索内容:', value);
+                handleSearch(value);
+                setCurrentPage(1); 
               }}
             />
+
           </div>
           <div
             style={{
@@ -267,7 +349,11 @@ const Welcome: React.FC = () => {
                 <Select
                   placeholder="Select category"
                   value={filters.category}
-                  onChange={(value) => setFilters((prev) => ({ ...prev, category: value }))}
+                  onChange={(value) => {
+                    const newFilters = { ...filters, category: value };
+                    setFilters(newFilters);
+                    handleFilter(newFilters); 
+                  }}
                   style={{ width: '100%' }}
                 >
                   <Option value="">All</Option>
@@ -280,7 +366,11 @@ const Welcome: React.FC = () => {
                 <InputNumber
                   placeholder="Min price"
                   value={filters.minPrice}
-                  onChange={(value) => setFilters((prev) => ({ ...prev, minPrice: value }))}
+                  onChange={(value) => {
+                    const newFilters = { ...filters, minPrice: value };
+                    setFilters(newFilters);
+                    handleFilter(newFilters);
+                  }}
                   style={{ width: '100%' }}
                 />
               </Col>
@@ -288,7 +378,11 @@ const Welcome: React.FC = () => {
                 <InputNumber
                   placeholder="Max price"
                   value={filters.maxPrice}
-                  onChange={(value) => setFilters((prev) => ({ ...prev, maxPrice: value }))}
+                  onChange={(value) => {
+                    const newFilters = { ...filters, maxPrice: value };
+                    setFilters(newFilters);
+                    handleFilter(newFilters);
+                  }}
                   style={{ width: '100%' }}
                 />
               </Col>
@@ -296,7 +390,11 @@ const Welcome: React.FC = () => {
                 <Select
                   placeholder="Rating"
                   value={filters.rating}
-                  onChange={(value) => setFilters((prev) => ({ ...prev, rating: value }))}
+                  onChange={(value) => {
+                    const newFilters = { ...filters, rating: value };
+                    setFilters(newFilters);
+                    handleFilter(newFilters);
+                  }}
                   style={{ width: '100%' }}
                 >
                   <Option value="">All</Option>
@@ -308,6 +406,7 @@ const Welcome: React.FC = () => {
                 </Select>
               </Col>
             </Row>
+
           </div>
           <div
             style={{
@@ -326,12 +425,12 @@ const Welcome: React.FC = () => {
                     layout="center"
                     hoverable
                     style={{
-                      width: 300, // 固定宽度
-                      maxWidth: 320, // 或者设最大宽度
-                      minHeight: 240, // 固定高度或最小高度
+                      width: 300, 
+                      maxWidth: 320, 
+                      minHeight: 240, 
                     }}
                     actions={[
-                      <ShoppingCartOutlined key="add"  onClick={() => handleAddToCart(product)}/>,
+                      <ShoppingCartOutlined key="add" onClick={() => handleAddToCart(product)} />,
                       <ShoppingOutlined key="buy" onClick={() => handleBuyClick(product)} />
                     ]}
                   >
@@ -387,16 +486,19 @@ const Welcome: React.FC = () => {
               )}
             </Modal>
 
-
             <Modal
               title={selectedProduct?.name}
               open={modalVisible}
               onCancel={() => setModalVisible(false)}
               footer={[
-                <Button key="add" type="primary" /* onClick={() => handleAddToCart(selectedProduct)} */>
+                <Button key="add" type="primary" onClick={() => handleAddToCart(selectedProduct)}>
                   Add to Cart
                 </Button>,
-                <Button key="buy" /* onClick={() => handleBuyNow(selectedProduct)} */>
+                <Button key="buy" onClick={() => {
+                  setModalVisible(false)
+                  handleBuyClick(selectedProduct)
+                }
+                }>
                   Buy Now
                 </Button>,
               ]}
@@ -436,6 +538,20 @@ const Welcome: React.FC = () => {
               )}
             </Modal>
           </div>
+          <div style={{ marginTop: 24, textAlign: 'right' }}>
+            <Pagination
+              current={currentPage}
+              pageSize={pageSize}
+              total={total}
+              onChange={(page, size) => {
+                setCurrentPage(page);
+                setPageSize(size || 10);
+              }}
+              showSizeChanger
+              pageSizeOptions={['5', '10', '20', '50']}
+            />
+          </div>
+
         </div>
       </Card>
     </PageContainer>

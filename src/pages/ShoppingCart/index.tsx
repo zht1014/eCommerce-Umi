@@ -30,7 +30,7 @@ const ShoppingCart: React.FC = () => {
       const cartRes = await axios.get(`http://146.190.90.142:30080/shoppingcarts/cart/items?userId=${user.id}`);
       const cartData = cartRes.data.data || [];
 
-      // Get product details
+
       const detailedCart = await Promise.all(
         cartData.map(async (item: any) => {
           const productRes = await axios.get(`http://146.190.90.142:30080/products/products/${item.productId}`);

@@ -77,11 +77,13 @@ const Welcome: React.FC = () => {
   const [pageSize, setPageSize] = useState<number>(10);
   const [total, setTotal] = useState<number>(0);
   const [filters, setFilters] = useState<Filters>({
+    name: '',
     category: '',
     minPrice: undefined,
     maxPrice: undefined,
     rating: undefined,
   });
+  const [currentKeyword, setCurrentKeyword] = useState('')
 
 
 
@@ -91,6 +93,7 @@ const Welcome: React.FC = () => {
     try {
       const response = await axios.get(`http://146.190.90.142:30080/products/products/filter`, {
         params: {
+          name: appliedFilters.name || '',
           category: appliedFilters.category || '',
           minPrice: appliedFilters.minPrice || '',
           maxPrice: appliedFilters.maxPrice || '',
@@ -118,7 +121,7 @@ const Welcome: React.FC = () => {
       const response = await axios.get(`http://146.190.90.142:30080/products/products/search?keyword=${keyword}`);
       if (response.data.success) {
         setProducts(response.data.data || []);
-        setTotal(response.data.data.length); 
+        setTotal(response.data.data.length);
       } else {
         message.error('No products found');
       }
@@ -163,7 +166,7 @@ const Welcome: React.FC = () => {
       const res = await axios.post('http://146.190.90.142:30080/shoppingcarts/cart/add', {
         userId: currentUser.id,
         productId: product.id,
-        quantity: 1, 
+        quantity: 1,
         price: product.price
       }, {
         headers: {
@@ -183,7 +186,7 @@ const Welcome: React.FC = () => {
   };
 
 
- 
+
   /* const addressOptions = [
     '123 Main Street',
     '456 Park Avenue',
@@ -212,11 +215,11 @@ const Welcome: React.FC = () => {
   // 确认下单
   const confirmOrder = async () => {
     console.log({
-        "productId": selectedProductForOrder.id,
-        "quantity": selectedQuantity,
-        "shippingAddress": selectedAddress,
-        "userId": currentUser.id
-      })
+      "productId": selectedProductForOrder.id,
+      "quantity": selectedQuantity,
+      "shippingAddress": selectedAddress,
+      "userId": currentUser.id
+    })
     if (!selectedProductForOrder) return;
 
     try {
@@ -241,6 +244,7 @@ const Welcome: React.FC = () => {
   };
 
   interface Filters {
+    name?: string;
     category: string;
     minPrice?: number | null;
     maxPrice?: number | null;
@@ -331,9 +335,13 @@ const Welcome: React.FC = () => {
               }}
               onSearch={(value) => {
                 handleSearch(value);
-                setCurrentPage(1); 
+                setCurrentPage(1);
+                const newFilters = { ...filters, name: value };
+                setFilters(newFilters);
               }}
+              onChange={(e) => setCurrentKeyword(e.target.value)}
             />
+
 
           </div>
           <div
@@ -353,7 +361,7 @@ const Welcome: React.FC = () => {
                   onChange={(value) => {
                     const newFilters = { ...filters, category: value };
                     setFilters(newFilters);
-                    handleFilter(newFilters); 
+                    handleFilter(newFilters);
                   }}
                   style={{ width: '100%' }}
                 >
@@ -426,9 +434,9 @@ const Welcome: React.FC = () => {
                     layout="center"
                     hoverable
                     style={{
-                      width: 300, 
-                      maxWidth: 320, 
-                      minHeight: 240, 
+                      width: 300,
+                      maxWidth: 320,
+                      minHeight: 240,
                     }}
                     actions={[
                       <ShoppingCartOutlined key="add" onClick={() => handleAddToCart(product)} />,

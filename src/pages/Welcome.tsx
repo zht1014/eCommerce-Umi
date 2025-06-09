@@ -7,10 +7,27 @@ import styled from 'styled-components';
 import { DeleteOutlined, DeploymentUnitOutlined, EditOutlined, EllipsisOutlined, EyeInvisibleOutlined, EyeOutlined, PlusOutlined, SettingOutlined, ShareAltOutlined, ShoppingCartOutlined, ShoppingOutlined, TwitterOutlined } from '@ant-design/icons';
 
 /**
- * 每个单独的卡片，为了复用样式抽成了组件
+ * 
  * @param param0
  * @returns
  */
+export interface Product {
+  id: number;
+  name: string;
+  title: string;
+  description: string;
+  price: number;
+  stock: number;
+  rating: number;
+  category: string;
+  status: string;
+  coverImageUrl: string;
+  sellerId: number;
+  createUser: string;
+  updateUser: string;
+  createDatetime: string | null;
+  updateDatetime: string | null;
+}
 
 const ProCardWrap = styled.span`
   .ant-pro-card-body{
@@ -84,11 +101,16 @@ const Welcome: React.FC = () => {
     rating: undefined,
   });
   const [currentKeyword, setCurrentKeyword] = useState('')
+  const [relatedMap, setRelatedMap] = useState<Record<number, Product[]>>({});
+  const [loadingRelated, setLoadingRelated] = useState(false);
+  const [recProduct, setRecProduct] = useState<any[]>([]);
+
+
 
 
 
   const handleFilter = async (nextFilters?: Filters) => {
-    const appliedFilters = nextFilters || filters; // 优先用最新的
+    const appliedFilters = nextFilters || filters;
     setLoading(true);
     try {
       const response = await axios.get(`http://146.190.90.142:30080/products/products/filter`, {
@@ -153,7 +175,7 @@ const Welcome: React.FC = () => {
   }, [currentPage, pageSize]);
 
 
-  const handleAddToCart = async (product) => {
+  const handleAddToCart = async (product: Product) => {
     try {
       const localUserStr = localStorage.getItem('currentUser');
       const currentUser = localUserStr ? JSON.parse(localUserStr) : null;
@@ -194,7 +216,6 @@ const Welcome: React.FC = () => {
   ]; */
   const localUserStr = localStorage.getItem('currentUser');
   const currentUser = localUserStr ? JSON.parse(localUserStr) : null;
-  console.log(currentUser)
 
   const handleBuyClick = async (product: any) => {
     setSelectedProductForOrder(product);
@@ -212,7 +233,20 @@ const Welcome: React.FC = () => {
     setOrderModalVisible(true);
   }
 
-  // 确认下单
+  const getRecommendation = async () => {
+    try {
+      /* const response = await axios.get(`http://146.190.90.142:30080/products/products/recommend/user/${currentUser.id}/top`) */
+      const response = await axios.get(`http://146.190.90.142:30080/products/products/recommend/user/1/top`)
+      if (response.data.success) {
+        setRecProduct(response.data.data)
+      }
+    } catch (err) {
+      message.error('Recommendation failed');
+    } finally {
+      setLoading(false);
+    }
+  }
+
   const confirmOrder = async () => {
     console.log({
       "productId": selectedProductForOrder.id,
@@ -269,11 +303,27 @@ const Welcome: React.FC = () => {
   };
 
 
-  const handlePreview = (product: any) => {
+  const handlePreview = async (product: Product) => {
     setSelectedProduct(product);
     setModalVisible(true);
-    fetchFeedback(product.id)
+    fetchFeedback(product.id);
+
+    const productId = Number(product.id);
+
+    if (!relatedMap[productId]) {
+      setLoadingRelated(true);
+      try {
+        const res = await axios.get(`http://146.190.90.142:30080/products/products/recommend/related/${productId}`);
+        const related = res.data.data || [];
+        setRelatedMap((prev) => ({ ...prev, [productId]: related }));
+      } catch (err) {
+        console.error('Failed to get relevant recommendations', err);
+      } finally {
+        setLoadingRelated(false);
+      }
+    }
   };
+
 
   const getProduct = async () => {
     setLoading(true);
@@ -282,16 +332,21 @@ const Welcome: React.FC = () => {
       if (res.data.success) {
         console.log(res)
         setProducts(res.data.data);
+        const productList = res.data.data;
+        setProducts(productList);
+
       }
     } catch (err) {
       console.error('failed getting products', err);
     } finally {
       setLoading(false);
     }
+
   };
 
   useEffect(() => {
     getProduct();
+    getRecommendation();
   }, []);
 
   return (
@@ -318,6 +373,50 @@ const Welcome: React.FC = () => {
               "url('https://gw.alipayobjects.com/mdn/rms_a9745b/afts/img/A*BuFmQqsB2iAAAAAAAAAAAAAAARQnAQ')",
           }}
         >
+          <div style={{ overflowX: 'auto', padding: '16px' }}>
+            <h2 style={{ marginBottom: '12px' }}>Best Sellers</h2>
+            <div style={{ display: 'flex', gap: '16px' }}>
+              {recProduct.length > 0 ? (
+                recProduct.map((product) => {
+                  const isOpen = product.status === 'AVAILABLE';
+
+                  return (
+                    <ProCard
+                      key={product.id}
+                      colSpan={6}
+                      layout="center"
+                      hoverable
+                      style={{
+                        width: 300,
+                        maxWidth: 320,
+                        minHeight: 260,
+                        flex: '0 0 auto', // Prevent flex items from shrinking
+                      }}
+                      actions={[
+                        <ShoppingCartOutlined key="add" onClick={() => handleAddToCart(product)} />,
+                        <ShoppingOutlined key="buy" onClick={() => handleBuyClick(product)} />,
+                      ]}
+                    >
+                      <ItemCard onClick={() => handlePreview(product)}>
+                        {isOpen && <Status />}
+                        <Cover src={product.coverImageUrl || 'https://res-console.bowell.com/img/bg.08407d40.jpg'} />
+                        <Info>
+                          <Name>{product.name}</Name>
+                          <div>
+                            <Tag color="#55acee">{product.category}</Tag>
+                            <Tag color="#2fd661">{`￥${product.price}`}</Tag>
+                          </div>
+                        </Info>
+                      </ItemCard>
+                    </ProCard>
+                  );
+                })
+              ) : (
+                <Empty />
+              )}
+            </div>
+          </div>
+
           <div
             style={{
               display: 'flex',
@@ -428,8 +527,9 @@ const Welcome: React.FC = () => {
             }}
           >
             {products.length > 0 ? (
-              products.map((product, index) => {
+              products.map((product) => {
                 const isOpen = product.status === 'AVAILABLE';
+
                 return (
                   <ProCard
                     key={product.id}
@@ -439,7 +539,7 @@ const Welcome: React.FC = () => {
                     style={{
                       width: 300,
                       maxWidth: 320,
-                      minHeight: 240,
+                      minHeight: 260,
                     }}
                     actions={[
                       <ShoppingCartOutlined key="add" onClick={() => handleAddToCart(product)} />,
@@ -447,7 +547,7 @@ const Welcome: React.FC = () => {
                     ]}
                   >
                     <ItemCard onClick={() => handlePreview(product)}>
-                      {isOpen && <Status></Status>}
+                      {isOpen && <Status />}
                       <Cover src={product.coverImageUrl || 'https://res-console.bowell.com/img/bg.08407d40.jpg'} />
                       <Info>
                         <Name>{product.name}</Name>
@@ -457,9 +557,12 @@ const Welcome: React.FC = () => {
                         </div>
                       </Info>
                     </ItemCard>
+
+
                   </ProCard>
                 );
               })
+
             ) : (
               <Empty />
             )}
@@ -506,22 +609,24 @@ const Welcome: React.FC = () => {
                 <Button key="add" type="primary" onClick={() => handleAddToCart(selectedProduct)}>
                   Add to Cart
                 </Button>,
-                <Button key="buy" onClick={() => {
-                  setModalVisible(false)
-                  handleBuyClick(selectedProduct)
-                }
-                }>
+                <Button
+                  key="buy"
+                  onClick={() => {
+                    setModalVisible(false);
+                    handleBuyClick(selectedProduct);
+                  }}
+                >
                   Buy Now
                 </Button>,
               ]}
             >
               {selectedProduct && (
                 <div style={{ textAlign: 'center' }}>
-                  <Image src={selectedProduct.coverImageUrl} width={200} />
+                  <Image src={selectedProduct.coverImageUrl} width={320} height={200} style={{ objectFit: 'cover', borderRadius: 8 }} />
                   <p style={{ marginTop: 12 }}>{selectedProduct.description}</p>
                   <div>
                     <Tag color="#55acee">{selectedProduct.category}</Tag>
-                    <Tag color="#2fd661">{`￥${selectedProduct.price}`}</Tag>
+                    <Tag color="#2fd661">￥{selectedProduct.price}</Tag>
                     <div>Rating: {selectedProduct.rating}</div>
                     <div>Stock: {selectedProduct.stock}</div>
                   </div>
@@ -544,6 +649,54 @@ const Welcome: React.FC = () => {
                       />
                     ) : (
                       <p>No feedback yet.</p>
+                    )}
+                  </div>
+
+                  <div style={{ textAlign: 'left', marginTop: 24, maxHeight: 260, overflowY: 'auto' }}>
+                    <h3>Relevant Recommendations</h3>
+                    {loadingRelated ? (
+                      <Spin />
+                    ) : relatedMap[Number(selectedProduct.id)]?.length > 0 ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                        {relatedMap[Number(selectedProduct.id)].map((rel) => (
+                          <div
+                            key={rel.id}
+                            onClick={() => {
+                              setModalVisible(false);
+                              handlePreview(rel);
+                              console.log(rel)
+                            }}
+                            style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', maxHeight: 80, overflow: 'hidden' }}
+                          >
+                            <div
+                              style={{
+                                width: 80,
+                                height: 60,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                background: '#f5f5f5',
+                                borderRadius: 4,
+                                flexShrink: 0,
+                              }}
+                            >
+                              <img
+                                src={rel.coverImageUrl}
+                                alt={rel.name}
+                                style={{
+                                  maxWidth: '100%',
+                                  maxHeight: '100%',
+                                  objectFit: 'contain',
+                                  borderRadius: 4,
+                                }}
+                              />
+                            </div>
+                            <div style={{ fontSize: 14, fontWeight: 500 }}>{rel.name}</div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p style={{ fontSize: 12, color: '#999' }}>No recommendation</p>
                     )}
                   </div>
                 </div>
@@ -571,81 +724,3 @@ const Welcome: React.FC = () => {
 };
 
 export default Welcome;
-
-
-
-
-/* const InfoCard: React.FC<{
-  title: string;
-  index: number;
-  desc: string;
-  href: string;
-}> = ({ title, href, index, desc }) => {
-  const { useToken } = theme;
-
-  const { token } = useToken();
-
-  return (
-    <div
-      style={{
-        backgroundColor: token.colorBgContainer,
-        boxShadow: token.boxShadow,
-        borderRadius: '8px',
-        fontSize: '14px',
-        color: token.colorTextSecondary,
-        lineHeight: '22px',
-        padding: '16px 19px',
-        minWidth: '220px',
-        flex: 1,
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          gap: '4px',
-          alignItems: 'center',
-        }}
-      >
-        <div
-          style={{
-            width: 48,
-            height: 48,
-            lineHeight: '22px',
-            backgroundSize: '100%',
-            textAlign: 'center',
-            padding: '8px 16px 16px 12px',
-            color: '#FFF',
-            fontWeight: 'bold',
-            backgroundImage:
-              "url('https://gw.alipayobjects.com/zos/bmw-prod/daaf8d50-8e6d-4251-905d-676a24ddfa12.svg')",
-          }}
-        >
-          {index}
-        </div>
-        <div
-          style={{
-            fontSize: '16px',
-            color: token.colorText,
-            paddingBottom: 8,
-          }}
-        >
-          {title}
-        </div>
-      </div>
-      <div
-        style={{
-          fontSize: '14px',
-          color: token.colorTextSecondary,
-          textAlign: 'justify',
-          lineHeight: '22px',
-          marginBottom: 8,
-        }}
-      >
-        {desc}
-      </div>
-      <a href={href} target="_blank" rel="noreferrer">
-        了解更多 {'>'}
-      </a>
-    </div>
-  );
-}; */

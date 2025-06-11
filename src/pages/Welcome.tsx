@@ -373,50 +373,7 @@ const Welcome: React.FC = () => {
               "url('https://gw.alipayobjects.com/mdn/rms_a9745b/afts/img/A*BuFmQqsB2iAAAAAAAAAAAAAAARQnAQ')",
           }}
         >
-          <div style={{ overflowX: 'auto', padding: '16px' }}>
-            <h2 style={{ marginBottom: '12px' }}>Best Sellers</h2>
-            <div style={{ display: 'flex', gap: '16px' }}>
-              {recProduct.length > 0 ? (
-                recProduct.map((product) => {
-                  const isOpen = product.status === 'AVAILABLE';
-
-                  return (
-                    <ProCard
-                      key={product.id}
-                      colSpan={6}
-                      layout="center"
-                      hoverable
-                      style={{
-                        width: 300,
-                        maxWidth: 320,
-                        minHeight: 260,
-                        flex: '0 0 auto', // Prevent flex items from shrinking
-                      }}
-                      actions={[
-                        <ShoppingCartOutlined key="add" onClick={() => handleAddToCart(product)} />,
-                        <ShoppingOutlined key="buy" onClick={() => handleBuyClick(product)} />,
-                      ]}
-                    >
-                      <ItemCard onClick={() => handlePreview(product)}>
-                        {isOpen && <Status />}
-                        <Cover src={product.coverImageUrl || 'https://res-console.bowell.com/img/bg.08407d40.jpg'} />
-                        <Info>
-                          <Name>{product.name}</Name>
-                          <div>
-                            <Tag color="#55acee">{product.category}</Tag>
-                            <Tag color="#2fd661">{`￥${product.price}`}</Tag>
-                          </div>
-                        </Info>
-                      </ItemCard>
-                    </ProCard>
-                  );
-                })
-              ) : (
-                <Empty />
-              )}
-            </div>
-          </div>
-
+          
           <div
             style={{
               display: 'flex',
@@ -715,6 +672,50 @@ const Welcome: React.FC = () => {
               showSizeChanger
               pageSizeOptions={['5', '10', '20', '50']}
             />
+          </div>
+
+          <div style={{ overflowX: 'auto', padding: '16px' }}>
+            <h2 style={{ marginBottom: '12px' }}>Recommended Products</h2>
+            <div style={{ display: 'flex', gap: '16px' }}>
+              {recProduct.length > 0 ? (
+                recProduct.map((product) => {
+                  const isOpen = product.status === 'AVAILABLE';
+
+                  return (
+                    <ProCard
+                      key={product.id}
+                      colSpan={6}
+                      layout="center"
+                      hoverable
+                      style={{
+                        width: 300,
+                        maxWidth: 320,
+                        minHeight: 260,
+                        flex: '0 0 auto', // Prevent flex items from shrinking
+                      }}
+                      actions={[
+                        <ShoppingCartOutlined key="add" onClick={() => handleAddToCart(product)} />,
+                        <ShoppingOutlined key="buy" onClick={() => handleBuyClick(product)} />,
+                      ]}
+                    >
+                      <ItemCard onClick={() => handlePreview(product)}>
+                        {isOpen && <Status />}
+                        <Cover src={product.coverImageUrl || 'https://res-console.bowell.com/img/bg.08407d40.jpg'} />
+                        <Info>
+                          <Name>{product.name}</Name>
+                          <div>
+                            <Tag color="#55acee">{product.category}</Tag>
+                            <Tag color="#2fd661">{`￥${product.price}`}</Tag>
+                          </div>
+                        </Info>
+                      </ItemCard>
+                    </ProCard>
+                  );
+                })
+              ) : (
+                <Empty />
+              )}
+            </div>
           </div>
 
         </div>

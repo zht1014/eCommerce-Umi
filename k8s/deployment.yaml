@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: frontend-service
-          image: madridboi/web:latest
+          image: allenwu1/frontend-service:latest
           ports:
             - containerPort: 80
           resources:

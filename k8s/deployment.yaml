@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: frontend-service
-          image: crpi-4fldyb2d8ogn9j5i.ap-southeast-1.personal.cr.aliyuncs.com/madridboi/web:latest
+          image: madridboi/web:latest
           ports:
             - containerPort: 80
           resources:

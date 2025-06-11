@@ -3,10 +3,12 @@ kind: Service
 metadata:
   name: frontend-service
 spec:
-  type: LoadBalancer
+  type: NodePort
   selector:
     app: frontend-service
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 80
+      port: 8089
+      targetPort: 8089
+      nodePort: 30089
+

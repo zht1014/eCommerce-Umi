@@ -2,10 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: frontend-service
-  labels:
-    app: frontend-service
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: frontend-service
@@ -18,23 +16,9 @@ spec:
         - name: frontend-service
           image: allenwu1/frontend-service:latest
           ports:
-            - containerPort: 80
+            - containerPort: 8089
           resources:
             requests:
-              cpu: "100m"
               memory: "128Mi"
             limits:
-              cpu: "500m"
               memory: "512Mi"
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 80
-            initialDelaySeconds: 10
-            periodSeconds: 10
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 80
-            initialDelaySeconds: 5
-            periodSeconds: 10

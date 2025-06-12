@@ -17,6 +17,9 @@ const ShoppingCart: React.FC = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
 
+  const localUserStr = localStorage.getItem('currentUser');
+  const currentUser = localUserStr ? JSON.parse(localUserStr) : null;
+
   const fetchCartItems = async () => {
     setLoading(true);
     try {
@@ -27,13 +30,21 @@ const ShoppingCart: React.FC = () => {
         return;
       }
 
-      const cartRes = await axios.get(`http://146.190.90.142:30080/shoppingcarts/cart/items?userId=${user.id}`);
+      const cartRes = await axios.get(`http://146.190.90.142:30080/shoppingcarts/cart/items?userId=${user.id}`,{
+        headers: {
+          'Authorization': 'Bearer ' + currentUser.token,
+        },
+      });
       const cartData = cartRes.data.data || [];
 
 
       const detailedCart = await Promise.all(
         cartData.map(async (item: any) => {
-          const productRes = await axios.get(`http://146.190.90.142:30080/products/products/${item.productId}`);
+          const productRes = await axios.get(`http://146.190.90.142:30080/products/products/${item.productId}`,{
+            headers: {
+          'Authorization': 'Bearer ' + currentUser.token,
+        },
+          });
           const product = productRes.data.data;
           return {
             id: item.id,

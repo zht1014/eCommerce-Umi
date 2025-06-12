@@ -25,7 +25,11 @@ const Center: React.FC = () => {
             return;
         }
         try {
-            const res = await axios.get(`http://146.190.90.142:30080/users/api/addresses/user/${currentUser.id}`);
+            const res = await axios.get(`http://146.190.90.142:30080/users/api/addresses/user/${currentUser.id}`,{
+                headers: {
+          'Authorization': 'Bearer ' + currentUser.token,
+        },
+            });
             setAddresses(res.data || []);
             setAddressModalVisible(true);
         } catch (err) {
@@ -38,7 +42,11 @@ const Center: React.FC = () => {
         if (!currentUser) return;
         setLoadingOrders(true);
         try {
-            const res = await axios.get(`http://146.190.90.142:30080/orders/orders/user/${currentUser.id}`);
+            const res = await axios.get(`http://146.190.90.142:30080/orders/orders/user/${currentUser.id}`,{
+                headers: {
+          'Authorization': 'Bearer ' + currentUser.token,
+        },
+            });
             if (res.data.success) {
                 setOrders(res.data.data || []);
                 setOrdersVisible(true);

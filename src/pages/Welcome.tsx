@@ -76,7 +76,6 @@ const Status = styled.div`
 `
 
 const Welcome: React.FC = () => {
-  const { token } = theme.useToken();
   const { initialState } = useModel('@@initialState');
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -105,7 +104,9 @@ const Welcome: React.FC = () => {
   const [loadingRelated, setLoadingRelated] = useState(false);
   const [recProduct, setRecProduct] = useState<any[]>([]);
 
-
+  const localUserStr = localStorage.getItem('currentUser');
+  const currentUser = localUserStr ? JSON.parse(localUserStr) : null;
+  console.log(currentUser)
 
 
 
@@ -120,6 +121,9 @@ const Welcome: React.FC = () => {
           minPrice: appliedFilters.minPrice || '',
           maxPrice: appliedFilters.maxPrice || '',
           rating: appliedFilters.rating || '',
+        },
+        headers: {
+          'Authorization': 'Bearer ' + currentUser.token,
         },
       });
       if (response.data.success) {
@@ -140,7 +144,11 @@ const Welcome: React.FC = () => {
   const handleSearch = async (keyword: string) => {
     setLoading(true);
     try {
-      const response = await axios.get(`http://146.190.90.142:30080/products/products/search?keyword=${keyword}`);
+      const response = await axios.get(`http://146.190.90.142:30080/products/products/search?keyword=${keyword}`, {
+        headers: {
+          'Authorization': 'Bearer ' + currentUser.token,
+        },
+      });
       if (response.data.success) {
         setProducts(response.data.data || []);
         setTotal(response.data.data.length);
@@ -158,7 +166,11 @@ const Welcome: React.FC = () => {
   const fetchProductsByPage = async (page = 1, size = 10) => {
     setLoading(true);
     try {
-      const response = await axios.get(`http://146.190.90.142:30080/products/products/page?page=${page}&size=${size}`);
+      const response = await axios.get(`http://146.190.90.142:30080/products/products/page?page=${page}&size=${size}`, {
+        headers: {
+          'Authorization': 'Bearer ' + currentUser.token,
+        },
+      });
       if (response.data.success) {
         setProducts(response.data.data.records || []);
         setTotal(response.data.data.total || 0);
@@ -177,8 +189,7 @@ const Welcome: React.FC = () => {
 
   const handleAddToCart = async (product: Product) => {
     try {
-      const localUserStr = localStorage.getItem('currentUser');
-      const currentUser = localUserStr ? JSON.parse(localUserStr) : null;
+
 
       if (!currentUser) {
         message.warning('Please log in first!');
@@ -214,13 +225,15 @@ const Welcome: React.FC = () => {
     '456 Park Avenue',
     '789 High Street',
   ]; */
-  const localUserStr = localStorage.getItem('currentUser');
-  const currentUser = localUserStr ? JSON.parse(localUserStr) : null;
 
   const handleBuyClick = async (product: any) => {
     setSelectedProductForOrder(product);
     setSelectedQuantity(1);
-    const res = await axios.get(`http://146.190.90.142:30080/users/api/addresses/user/${currentUser.id}`);
+    const res = await axios.get(`http://146.190.90.142:30080/users/api/addresses/user/${currentUser.id}`, {
+      headers: {
+        'Authorization': 'Bearer ' + currentUser.token,
+      },
+    });
     const addresses = res.data || [];
     console.log(addresses)
 
@@ -236,7 +249,11 @@ const Welcome: React.FC = () => {
   const getRecommendation = async () => {
     try {
       /* const response = await axios.get(`http://146.190.90.142:30080/products/products/recommend/user/${currentUser.id}/top`) */
-      const response = await axios.get(`http://146.190.90.142:30080/products/products/recommend/user/1/top`)
+      const response = await axios.get(`http://146.190.90.142:30080/products/products/recommend/user/1/top`, {
+        headers: {
+          'Authorization': 'Bearer ' + currentUser.token,
+        },
+      })
       if (response.data.success) {
         setRecProduct(response.data.data)
       }
@@ -262,6 +279,10 @@ const Welcome: React.FC = () => {
         "quantity": selectedQuantity,
         "shippingAddress": selectedAddress,
         "userId": 1   //currentUser.id
+      }, {
+        headers: {
+          'Authorization': 'Bearer ' + currentUser.token,
+        },
       });
 
       if (response.data.success) {
@@ -290,7 +311,11 @@ const Welcome: React.FC = () => {
   const fetchFeedback = async (productId: number) => {
     try {
       setLoadingFeedback(true);
-      const response = await axios.get(`http://146.190.90.142:30080/products/feedback/product/${productId}`);
+      const response = await axios.get(`http://146.190.90.142:30080/products/feedback/product/${productId}`, {
+        headers: {
+          'Authorization': 'Bearer ' + currentUser.token,
+        },
+      });
       if (response.data.success) {
         setFeedbackList(response.data.data || []);
       }
@@ -313,7 +338,11 @@ const Welcome: React.FC = () => {
     if (!relatedMap[productId]) {
       setLoadingRelated(true);
       try {
-        const res = await axios.get(`http://146.190.90.142:30080/products/products/recommend/related/${productId}`);
+        const res = await axios.get(`http://146.190.90.142:30080/products/products/recommend/related/${productId}`, {
+          headers: {
+            'Authorization': 'Bearer ' + currentUser.token,
+          },
+        });
         const related = res.data.data || [];
         setRelatedMap((prev) => ({ ...prev, [productId]: related }));
       } catch (err) {
@@ -328,7 +357,11 @@ const Welcome: React.FC = () => {
   const getProduct = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('http://146.190.90.142:30080/products/products');
+      const res = await axios.get('http://146.190.90.142:30080/products/products',{
+        headers: {
+          'Authorization': 'Bearer ' + currentUser.token,
+        },
+      });
       if (res.data.success) {
         console.log(res)
         setProducts(res.data.data);
@@ -373,7 +406,7 @@ const Welcome: React.FC = () => {
               "url('https://gw.alipayobjects.com/mdn/rms_a9745b/afts/img/A*BuFmQqsB2iAAAAAAAAAAAAAAARQnAQ')",
           }}
         >
-          
+
           <div
             style={{
               display: 'flex',

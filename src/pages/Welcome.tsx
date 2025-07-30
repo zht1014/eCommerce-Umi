@@ -4,7 +4,8 @@ import { Button, Card, Empty, Input, Modal, Tag, theme, Image, message, Spin, Li
 import React, { useEffect, useState } from 'react';
 import axios from 'axios'
 import styled from 'styled-components';
-import { DeleteOutlined, DeploymentUnitOutlined, EditOutlined, EllipsisOutlined, EyeInvisibleOutlined, EyeOutlined, PlusOutlined, SettingOutlined, ShareAltOutlined, ShoppingCartOutlined, ShoppingOutlined, TwitterOutlined } from '@ant-design/icons';
+import {ShoppingCartOutlined, ShoppingOutlined} from '@ant-design/icons';
+import Chat from './Chat/Chat';
 
 /**
  * 
@@ -748,11 +749,13 @@ const Welcome: React.FC = () => {
               ) : (
                 <Empty />
               )}
+              <Chat />
             </div>
           </div>
 
         </div>
       </Card>
+      
     </PageContainer>
   );
 };

@@ -48,6 +48,18 @@ export default [
     component:'./ShoppingCart'
   },
   {
+    path: '/UserManagement', 
+    name: 'UserManagement',
+    icon: 'product',
+    component:'./Admin/UserManagement'
+  },
+  {
+    path: '/AdminProducts', 
+    name: 'AdminProducts',
+    icon: 'product',
+    component:'./Admin/AdminProducts'
+  },
+  {
     path: '/admin',
     name: 'admin',
     icon: 'crown',
@@ -64,12 +76,12 @@ export default [
       },
     ],
   },
-  {
+  /* {
     name: 'list.table-list',
     icon: 'table',
     path: '/list',
     component: './TableList',
-  },
+  }, */
   {
     path: '/',
     redirect: '/welcome',

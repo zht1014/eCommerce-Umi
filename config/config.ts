@@ -4,8 +4,6 @@ import { join } from 'path';
 import defaultSettings from './defaultSettings';
 import proxy from './proxy';
 import routes from './routes';
-import { title } from 'process';
-import Layout from '@/.umi/plugin-layout/Layout';
 
 const { REACT_APP_ENV = 'dev' } = process.env;
 
@@ -152,7 +150,7 @@ export default defineConfig({
       // 或者使用在线的版本
       // schemaPath: "https://gw.alipayobjects.com/os/antfincdn/M%24jrzTTYJN/oneapi.json"
       schemaPath: join(__dirname, 'oneapi.json'),
-      mock: false,
+      mock: true,
     },
     {
       requestLibPath: "import { request } from '@umijs/max'",

@@ -23,7 +23,7 @@ export default [
 
   {
     path: '/user/register',
-    component: './user/Register',
+    component: './User/Register',
     layout: false,
   },
 

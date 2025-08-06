@@ -16,6 +16,18 @@ import { Children } from "react";
  */
 export default [
   {
+    path: '/face-registration',
+    component: './FaceRegistration',
+    layout: false,
+  },
+
+  {
+    path: '/user/register',
+    component: './user/Register',
+    layout: false,
+  },
+
+  {
     path: '/account',
     /* layout: false, */
     routes: [{
@@ -42,22 +54,22 @@ export default [
     component: './Welcome',
   },
   {
-    path: '/ShoppingCart', 
+    path: '/ShoppingCart',
     name: 'ShoppingCart',
     icon: 'ShoppingCart',
-    component:'./ShoppingCart'
+    component: './ShoppingCart'
   },
   {
-    path: '/UserManagement', 
+    path: '/UserManagement',
     name: 'UserManagement',
     icon: 'product',
-    component:'./Admin/UserManagement'
+    component: './Admin/UserManagement'
   },
   {
-    path: '/AdminProducts', 
+    path: '/AdminProducts',
     name: 'AdminProducts',
     icon: 'product',
-    component:'./Admin/AdminProducts'
+    component: './Admin/AdminProducts'
   },
   {
     path: '/admin',

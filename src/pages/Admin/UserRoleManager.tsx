@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Table, message, Button, Checkbox, Dropdown, Menu, Space } from "antd";
+import { Table, message, Button, Checkbox, Dropdown, Menu, Popconfirm } from "antd";
 import axios from "axios";
 
 const UserRoleManager = ({ currentUser, apiBaseUrl }) => {
   const [userList, setUserList] = useState([]);
   const [rolesList, setRolesList] = useState([]);
-  const [userRoleMap, setUserRoleMap] = useState({}); 
+  const [userRoleMap, setUserRoleMap] = useState({});
   const [loading, setLoading] = useState(false);
-  const [selectedRoles, setSelectedRoles] = useState({}); 
+  const [selectedRoles, setSelectedRoles] = useState({});
 
   const fetchUsers = async () => {
     try {
@@ -17,7 +17,7 @@ const UserRoleManager = ({ currentUser, apiBaseUrl }) => {
       if (res.data.success) {
         setUserList(res.data.data || []);
       }
-    } catch (err) {
+    } catch {
       message.error("Failed to fetch users.");
     }
   };
@@ -30,7 +30,7 @@ const UserRoleManager = ({ currentUser, apiBaseUrl }) => {
       if (res.data.success) {
         setRolesList(res.data.data || []);
       }
-    } catch (err) {
+    } catch {
       message.error("Failed to fetch roles.");
     }
   };
@@ -42,7 +42,6 @@ const UserRoleManager = ({ currentUser, apiBaseUrl }) => {
       });
 
       if (res.data.success) {
-        console.log(res.data.data)
         const map = {};
         res.data.data.forEach((ur) => {
           if (!map[ur.userId]) map[ur.userId] = [];
@@ -50,7 +49,7 @@ const UserRoleManager = ({ currentUser, apiBaseUrl }) => {
         });
         setUserRoleMap(map);
       }
-    } catch (err) {
+    } catch {
       message.error("Failed to fetch user-role mappings.");
     }
   };
@@ -73,43 +72,60 @@ const UserRoleManager = ({ currentUser, apiBaseUrl }) => {
   };
 
   const handleSaveRoles = async (userId) => {
-  const newRoles = selectedRoles[userId] || [];
+    const newRoles = selectedRoles[userId] || [];
 
-  if (newRoles.length === 0) {
-    message.warning("No roles selected to save.");
-    return;
-  }
-
-  try {
-    const res = await axios.post(
-      `${apiBaseUrl}/api/user-roles`,
-      newRoles.map((roleId) => ({
-        id: 0, // Include this if required by backend
-        userId,
-        roleId,
-        createUser: currentUser.username || "system",
-        updateUser: currentUser.username || "system",
-      })),
-      {
-        headers: {
-          Authorization: "Bearer " + currentUser.token,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    if (res.data.success) {
-      message.success("Roles updated.");
-      await fetchUserRoles(); 
-    } else {
-      message.error(res.data.message || "Update failed.");
+    if (newRoles.length === 0) {
+      message.warning("No roles selected to save.");
+      return;
     }
-  } catch (err) {
-    console.error("POST error:", err.response?.data || err.message);
-    message.error(err.response?.data?.message || "Failed to update roles.");
-  }
-};
 
+    try {
+      const res = await axios.post(
+        `${apiBaseUrl}/api/user-roles`,
+        newRoles.map((roleId) => ({
+          id: 0,
+          userId,
+          roleId,
+          createUser: currentUser.username || "system",
+          updateUser: currentUser.username || "system",
+        })),
+        {
+          headers: {
+            Authorization: "Bearer " + currentUser.token,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (res.data.success) {
+        message.success("Roles updated.");
+        await fetchUserRoles();
+      } else {
+        message.error(res.data.message || "Update failed.");
+      }
+    } catch (err) {
+      console.error("POST error:", err.response?.data || err.message);
+      message.error(err.response?.data?.message || "Failed to update roles.");
+    }
+  };
+
+  const handleDeleteUser = async (userId) => {
+    try {
+      const res = await axios.delete(`${apiBaseUrl}/api/user/${userId}`, {
+        headers: { Authorization: "Bearer " + currentUser.token },
+      });
+
+      if (res.data.success) {
+        message.success("User deleted successfully.");
+        await init();
+      } else {
+        message.error(res.data.message || "Failed to delete user.");
+      }
+    } catch (err) {
+      console.error(err);
+      message.error("Error deleting user.");
+    }
+  };
 
   const columns = [
     {
@@ -157,6 +173,19 @@ const UserRoleManager = ({ currentUser, apiBaseUrl }) => {
           </Dropdown>
         );
       },
+    },
+    {
+      title: "Actions",
+      render: (_, record) => (
+        <Popconfirm
+          title="Are you sure to delete this user?"
+          onConfirm={() => handleDeleteUser(record.userId)}
+          okText="Yes"
+          cancelText="No"
+        >
+          <Button danger size="small">Delete</Button>
+        </Popconfirm>
+      ),
     },
   ];
 

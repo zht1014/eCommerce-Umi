@@ -18,6 +18,12 @@ const Center: React.FC = () => {
 
     const [addressModalVisible, setAddressModalVisible] = useState(false);
     const [addresses, setAddresses] = useState<any[]>([]);
+    const [newAddressModalVisible, setNewAddressModalVisible] = useState(false);
+    const [newAddress, setNewAddress] = useState({
+        street: '',
+        city: '',
+        state: '',
+    });
 
     const fetchUserAddresses = async () => {
         if (!currentUser) {
@@ -25,13 +31,13 @@ const Center: React.FC = () => {
             return;
         }
         try {
-            const res = await axios.get(`http://146.190.90.142:30080/users/api/addresses/user/${currentUser.id}`,{
+            const res = await axios.get(`http://146.190.90.142:30080/users/api/addresses/user/${currentUser.id}`, {
                 headers: {
-          'Authorization': 'Bearer ' + currentUser.token,
-        },
+                    'Authorization': 'Bearer ' + currentUser.token,
+                },
             });
             setAddresses(res.data || []);
-            setAddressModalVisible(true);
+            setAddressModalVisible(true);  // Show modal when addresses are fetched
         } catch (err) {
             console.error(err);
             message.error('Error fetching addresses');
@@ -42,10 +48,10 @@ const Center: React.FC = () => {
         if (!currentUser) return;
         setLoadingOrders(true);
         try {
-            const res = await axios.get(`http://146.190.90.142:30080/orders/orders/user/${currentUser.id}`,{
+            const res = await axios.get(`http://146.190.90.142:30080/orders/orders/user/${currentUser.id}`, {
                 headers: {
-          'Authorization': 'Bearer ' + currentUser.token,
-        },
+                    'Authorization': 'Bearer ' + currentUser.token,
+                },
             });
             if (res.data.success) {
                 setOrders(res.data.data || []);
@@ -58,6 +64,40 @@ const Center: React.FC = () => {
             message.error('Failed to fetch orders');
         } finally {
             setLoadingOrders(false);
+        }
+    };
+
+    const handleCreateAddress = async () => {
+        if (!currentUser) {
+            message.warning('Please log in!');
+            return;
+        }
+
+        try {
+            const payload = {
+                userId: currentUser.id,
+                street: newAddress.street,
+                city: newAddress.city,
+                state: newAddress.state,
+                createUser: currentUser.name,
+                updateUser: currentUser.name,
+                createDatetime: new Date().toISOString(),
+                updateDatetime: new Date().toISOString(),
+            };
+
+            const res = await axios.post('http://146.190.90.142:30080/users/api/addresses', payload, {
+                headers: {
+                    'Authorization': 'Bearer ' + currentUser.token,
+                },
+            });
+
+            message.success('Address created successfully!');
+            setNewAddressModalVisible(false);
+            setNewAddress({ street: '', city: '', state: '' });
+            fetchUserAddresses(); // Refresh address list after creation
+        } catch (err) {
+            console.error(err);
+            message.error('Failed to create address');
         }
     };
 
@@ -81,8 +121,8 @@ const Center: React.FC = () => {
                     <span style={{ fontSize: 30, fontWeight: 'bold' }}>
                         {initialState?.currentUser?.name}
                     </span>
-
                 </div>
+
                 <div
                     style={{
                         display: 'flex',
@@ -111,7 +151,10 @@ const Center: React.FC = () => {
                             <Button
                                 shape="circle"
                                 icon={<EnvironmentOutlined />}
-                                onClick={fetchUserAddresses}
+                                onClick={() => {
+                                    fetchUserAddresses();  // Fetch user addresses when managing address
+                                    setAddressModalVisible(true);
+                                }}
                                 type="primary"
                                 size="large"
                                 style={{ fontSize: 24 }}
@@ -120,7 +163,6 @@ const Center: React.FC = () => {
                         <div style={{ fontSize: 14, marginTop: 4 }}>Manage Address</div>
                     </div>
                 </div>
-
 
                 <div
                     style={{
@@ -190,17 +232,20 @@ const Center: React.FC = () => {
                 )}
             </Modal>
 
+            {/* 地址 Modal */}
             <Modal
                 title="Your Addresses"
                 open={addressModalVisible}
                 onCancel={() => setAddressModalVisible(false)}
                 footer={null}
+                width={700}
             >
                 {addresses.length > 0 ? (
                     <List
+                        itemLayout="vertical"
                         dataSource={addresses}
                         renderItem={(address) => (
-                            <List.Item>
+                            <List.Item key={address.id}>
                                 <List.Item.Meta
                                     title={`Address ID: ${address.id}`}
                                     description={`${address.street}, ${address.city}, ${address.state}`}
@@ -209,8 +254,47 @@ const Center: React.FC = () => {
                         )}
                     />
                 ) : (
-                    <p>No addresses found.</p>
+                    <div>
+                        <p>No addresses found. Please add a new address:</p>
+                        <Button onClick={() => setNewAddressModalVisible(true)} type="primary">
+                            Add New Address
+                        </Button>
+                    </div>
                 )}
+            </Modal>
+
+            {/* 新增地址 Modal */}
+            <Modal
+                title="Add New Address"
+                open={newAddressModalVisible}
+                onCancel={() => setNewAddressModalVisible(false)}
+                onOk={handleCreateAddress}
+                okText="Submit"
+            >
+                <div style={{ marginBottom: 16 }}>
+                    <label>Street:</label>
+                    <input
+                        style={{ width: '100%' }}
+                        value={newAddress.street}
+                        onChange={(e) => setNewAddress({ ...newAddress, street: e.target.value })}
+                    />
+                </div>
+                <div style={{ marginBottom: 16 }}>
+                    <label>City:</label>
+                    <input
+                        style={{ width: '100%' }}
+                        value={newAddress.city}
+                        onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
+                    />
+                </div>
+                <div style={{ marginBottom: 16 }}>
+                    <label>State:</label>
+                    <input
+                        style={{ width: '100%' }}
+                        value={newAddress.state}
+                        onChange={(e) => setNewAddress({ ...newAddress, state: e.target.value })}
+                    />
+                </div>
             </Modal>
         </PageContainer>
     );

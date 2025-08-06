@@ -130,32 +130,32 @@ const Login: React.FC = () => {
         message.success(defaultLoginSuccessMessage);
         const token = msg.data.data
         const userResponse = await axios.get('http://146.190.90.142:30080/users/getCurrentUserInfo', {
-        headers: {
-          'Authorization': 'Bearer ' + token,
-        },
-      });
+          headers: {
+            'Authorization': 'Bearer ' + token,
+          },
+        });
 
-      const userData = userResponse.data.data;  
-      console.log('Response:', userData);
+        const userData = userResponse.data.data;
+        console.log('Response:', userData);
 
-      const userInfo = {
-        name: userData.username || values.username,
-        token: token,
-        id: userData.userId,
-        email: userData.email,
-      };
-        
-  
+        const userInfo = {
+          name: userData.username || values.username,
+          token: token,
+          id: userData.userId,
+          email: userData.email,
+        };
+
+
         // 保存到 localStorage
         localStorage.setItem('currentUser', JSON.stringify(userInfo));
         localStorage.setItem('token', token);
-        
-        flushSync(()=>{
+
+        flushSync(() => {
           setInitialState((s) => ({
             ...s,
             currentUser: {
               ...s?.currentUser,
-              name: values.username, 
+              name: values.username,
 
             },
           }))
@@ -385,22 +385,21 @@ const Login: React.FC = () => {
               />
             </>
           )}
-          <div
-            style={{
-              marginBottom: 24,
-            }}
-          >
-            <ProFormCheckbox noStyle name="autoLogin">
-              <FormattedMessage id="pages.login.rememberMe" defaultMessage="自动登录" />
-            </ProFormCheckbox>
-            <a
-              style={{
-                float: 'right',
-              }}
-            >
-              <FormattedMessage id="pages.login.forgotPassword" defaultMessage="忘记密码" />
-            </a>
+          <div style={{ marginBottom: 24 }}>
+            <div>
+              <ProFormCheckbox noStyle name="autoLogin">
+                Remember me
+              </ProFormCheckbox>
+            </div>
+            <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between' }}>
+              <a onClick={() => history.push('/user/register')}>
+              Register
+              </a>
+              <a>Forgot password?</a>
+            </div>
           </div>
+
+
         </LoginForm>
       </div>
       <Footer />

@@ -58,7 +58,7 @@ const FaceRegistration = () => {
       formData.append("userId", userId);
 
       const response = await axios.post(
-        "http://146.190.90.142:30080/payments/api/face-recognition/register",
+        "http://167.71.210.84:30080/payments/api/face-recognition/register",
         formData,
         {
           headers: {

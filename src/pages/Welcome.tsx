@@ -120,7 +120,7 @@ const Welcome: React.FC = () => {
     const appliedFilters = nextFilters || filters;
     setLoading(true);
     try {
-      const response = await axios.get(`http://146.190.90.142:30080/products/products/filter`, {
+      const response = await axios.get(`http://167.71.210.84:30080/products/products/filter`, {
         params: {
           name: appliedFilters.name || '',
           category: appliedFilters.category || '',
@@ -150,7 +150,7 @@ const Welcome: React.FC = () => {
   const handleSearch = async (keyword: string) => {
     setLoading(true);
     try {
-      const response = await axios.get(`http://146.190.90.142:30080/products/products/search?keyword=${keyword}`, {
+      const response = await axios.get(`http://167.71.210.84:30080/products/products/search?keyword=${keyword}`, {
         headers: {
           'Authorization': 'Bearer ' + currentUser.token,
         },
@@ -172,7 +172,7 @@ const Welcome: React.FC = () => {
   const fetchProductsByPage = async (page = 1, size = 10) => {
     setLoading(true);
     try {
-      const response = await axios.get(`http://146.190.90.142:30080/products/products/page?page=${page}&size=${size}`, {
+      const response = await axios.get(`http://167.71.210.84:30080/products/products/page?page=${page}&size=${size}`, {
         headers: {
           'Authorization': 'Bearer ' + currentUser.token,
         },
@@ -202,7 +202,7 @@ const Welcome: React.FC = () => {
         return;
       }
 
-      const res = await axios.post('http://146.190.90.142:30080/shoppingcarts/cart/add', {
+      const res = await axios.post('http://167.71.210.84:30080/shoppingcarts/cart/add', {
         userId: currentUser.id,
         productId: product.id,
         quantity: 1,
@@ -224,18 +224,11 @@ const Welcome: React.FC = () => {
     }
   };
 
-
-
-  /* const addressOptions = [
-    '123 Main Street',
-    '456 Park Avenue',
-    '789 High Street',
-  ]; */
-
   const handleBuyClick = async (product: any) => {
+    setOrderModalVisible(true)
     setSelectedProductForOrder(product);
     setSelectedQuantity(1);
-    const res = await axios.get(`http://146.190.90.142:30080/users/api/addresses/user/${currentUser.id}`, {
+    const res = await axios.get(`http://167.71.210.84:30080/users/api/addresses/user/${currentUser.id}`, {
       headers: {
         'Authorization': 'Bearer ' + currentUser.token,
       },
@@ -245,14 +238,14 @@ const Welcome: React.FC = () => {
 
     setSelectedAddress(formattedAddresses[0]);
     setAddressOptions(formattedAddresses);
-    setPaymentMethodModalVisible(true); // 弹出支付方式选择弹窗
+
   }
 
 
   const getRecommendation = async () => {
     try {
-      /* const response = await axios.get(`http://146.190.90.142:30080/products/products/recommend/user/${currentUser.id}/top`) */
-      const response = await axios.get(`http://146.190.90.142:30080/products/products/recommend/user/1/top`, {
+      /* const response = await axios.get(`http://167.71.210.84:30080/products/products/recommend/user/${currentUser.id}/top`) */
+      const response = await axios.get(`http://167.71.210.84:30080/products/products/recommend/user/1/top`, {
         headers: {
           'Authorization': 'Bearer ' + currentUser.token,
         },
@@ -277,11 +270,13 @@ const Welcome: React.FC = () => {
     if (!selectedProductForOrder) return;
 
     try {
-      const response = await axios.post('http://146.190.90.142:30080/orders/orders/direct', {
+      const response = await axios.post('http://167.71.210.84:30080/orders/orders/direct', {
         "productId": selectedProductForOrder.id,
         "quantity": selectedQuantity,
+        "useFaceRecognition": false,
         "shippingAddress": selectedAddress,
-        "userId": 1   //currentUser.id
+        "userId": currentUser.id,
+        "paymentMethod": "WeChat"
       }, {
         headers: {
           'Authorization': 'Bearer ' + currentUser.token,
@@ -314,7 +309,7 @@ const Welcome: React.FC = () => {
   const fetchFeedback = async (productId: number) => {
     try {
       setLoadingFeedback(true);
-      const response = await axios.get(`http://146.190.90.142:30080/products/feedback/product/${productId}`, {
+      const response = await axios.get(`http://167.71.210.84:30080/products/feedback/product/${productId}`, {
         headers: {
           'Authorization': 'Bearer ' + currentUser.token,
         },
@@ -341,7 +336,7 @@ const Welcome: React.FC = () => {
     if (!relatedMap[productId]) {
       setLoadingRelated(true);
       try {
-        const res = await axios.get(`http://146.190.90.142:30080/products/products/recommend/related/${productId}`, {
+        const res = await axios.get(`http://167.71.210.84:30080/products/products/recommend/related/${productId}`, {
           headers: {
             'Authorization': 'Bearer ' + currentUser.token,
           },
@@ -360,7 +355,7 @@ const Welcome: React.FC = () => {
   const getProduct = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('http://146.190.90.142:30080/products/products', {
+      const res = await axios.get('http://167.71.210.84:30080/products/products', {
         headers: {
           'Authorization': 'Bearer ' + currentUser.token,
         },
@@ -394,6 +389,7 @@ const Welcome: React.FC = () => {
 
   // 人脸支付
   const handleFacePayment = () => {
+    console.log(selectedProduct)
     setIsFacePayment(true);
     setPaymentMethodModalVisible(false); // 关闭支付方式选择弹窗
   }
@@ -577,7 +573,10 @@ const Welcome: React.FC = () => {
               title="Confirm Order"
               open={orderModalVisible}
               onCancel={() => setOrderModalVisible(false)}
-              onOk={confirmOrder}
+              onOk={() => {
+                setPaymentMethodModalVisible(true)
+                setOrderModalVisible(false)
+              }}
               okText="Proceed To Payment"
             >
               {selectedProductForOrder && (
@@ -615,10 +614,10 @@ const Welcome: React.FC = () => {
               footer={null}
             >
               <div>
-                <Button type="primary" onClick={handleNormalPayment} style={{ marginBottom: 16 }}>
+                <Button type="primary" onClick={handleNormalPayment} style={{ width: '100%' , marginBottom: 10}}>
                   Normal Payment
                 </Button>
-                <Button type="primary" onClick={handleFacePayment}>
+                <Button type="primary" onClick={handleFacePayment} style={{ width: '100%' }}>
                   Face Payment
                 </Button>
               </div>
@@ -626,7 +625,17 @@ const Welcome: React.FC = () => {
 
 
             {isFacePayment && (
-              <FacePaymentModal visible={isFacePayment} onClose={() => setIsFacePayment(false)} />
+              <FacePaymentModal
+                visible={isFacePayment}
+                onClose={() => setIsFacePayment(false)}
+                productid={selectedProductForOrder.id}
+                quantity={selectedQuantity}
+                shippingAddress={selectedAddress}
+                userid={currentUser.id}
+                paymentMethod="WeChat"  // 可以根据需要设置支付方式
+                //useFaceRecognition={true}  
+              />
+
             )}
 
 

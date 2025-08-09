@@ -118,7 +118,7 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (values: API.LoginParams) => {
     try {
-      const msg = await axios.post('http://146.190.90.142:30080/users/login', {
+      const msg = await axios.post('http://167.71.210.84:30080/users/login', {
         username: values.username,
         password: values.password
       })
@@ -129,7 +129,7 @@ const Login: React.FC = () => {
         });
         message.success(defaultLoginSuccessMessage);
         const token = msg.data.data
-        const userResponse = await axios.get('http://146.190.90.142:30080/users/getCurrentUserInfo', {
+        const userResponse = await axios.get('http://167.71.210.84:30080/users/getCurrentUserInfo', {
           headers: {
             'Authorization': 'Bearer ' + token,
           },

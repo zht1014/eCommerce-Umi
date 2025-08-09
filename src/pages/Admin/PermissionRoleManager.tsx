@@ -3,7 +3,8 @@ import { Table, Button, message, Checkbox, Input, Row, Col, Pagination } from "a
 import axios from "axios";
 
 const PermissionRoleManager = ({ currentUser, apiBaseUrl }) => {
-  const [permissions, setPermissions] = useState([]);
+  const [permissions, setPermissions] = useState([]);  // Store all permissions
+  const [filteredPermissions, setFilteredPermissions] = useState([]);  // Store filtered permissions
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedRoles, setSelectedRoles] = useState({});
@@ -36,9 +37,8 @@ const PermissionRoleManager = ({ currentUser, apiBaseUrl }) => {
         params: {
           page,
           size,
-          search: searchKeyword,
-          sortBy: 'createDatetime',  // Adjust the sorting based on the API requirements
-          direction: 'desc',          // Adjust the sorting direction
+          sortBy: 'createDatetime',
+          direction: 'desc',
         },
         headers: {
           Authorization: "Bearer " + currentUser.token,
@@ -46,7 +46,9 @@ const PermissionRoleManager = ({ currentUser, apiBaseUrl }) => {
       });
 
       if (res.data.success) {
-        setPermissions(res.data.data.content || []);
+        const permissionsData = res.data.data.content || [];
+        setPermissions(permissionsData);  // Store all permissions
+        setFilteredPermissions(permissionsData);  // Initially display all permissions
         setTotal(res.data.data.totalElements || 0); // Adjust total count
       }
     } catch {
@@ -71,7 +73,7 @@ const PermissionRoleManager = ({ currentUser, apiBaseUrl }) => {
       });
       setSelectedRoles(roleMap);  // Update selectedRoles after both roles and permissions are loaded
     }
-  }, [roles, permissions]);  // Trigger only after roles and permissions are both loaded
+  }, [roles, permissions]);
 
   // Handle checkbox change (single role per permission)
   const handleCheckboxChange = (permissionId, checkedValue) => {
@@ -79,44 +81,6 @@ const PermissionRoleManager = ({ currentUser, apiBaseUrl }) => {
       ...prev,
       [permissionId]: checkedValue,
     }));
-  };
-
-  // Save roles to permission (single role ID per permission)
-  const handleSaveRoles = async (permissionId) => {
-    const roleId = selectedRoles[permissionId];
-
-    if (!roleId) {
-      message.warning("Please select at least one role.");
-      return;
-    }
-
-    const payload = [
-      {
-        permissionId,
-        roleId,
-        createUser: currentUser.username || "system",
-        updateUser: currentUser.username || "system",
-      },
-    ];
-
-    try {
-      const res = await axios.post(
-        `${apiBaseUrl}/api/role-permissions`,
-        payload,
-        {
-          headers: {
-            Authorization: "Bearer " + currentUser.token,
-          },
-        }
-      );
-      if (res.data.success) {
-        message.success("Roles updated successfully.");
-      } else {
-        message.error(res.data.message || "Failed to update roles.");
-      }
-    } catch {
-      message.error("Error updating roles.");
-    }
   };
 
   // Bulk assign roles (single role per permission)
@@ -154,9 +118,12 @@ const PermissionRoleManager = ({ currentUser, apiBaseUrl }) => {
   };
 
   // Handle search
-  const handleSearch = (e) => {
-    setSearchKeyword(e.target.value);
-    setCurrentPage(1); // Reset to the first page when searching
+  const handleSearch = () => {
+    // Filter permissions by searchKeyword in 'endpoint' field
+    const filtered = permissions.filter(permission =>
+      permission.endpoint.toLowerCase().includes(searchKeyword.toLowerCase())
+    );
+    setFilteredPermissions(filtered);  // Update the filtered permissions
   };
 
   // Pagination change
@@ -168,6 +135,13 @@ const PermissionRoleManager = ({ currentUser, apiBaseUrl }) => {
 
   // Columns for the table
   const columns = [
+    {
+      title: "Description",  // New column for description
+      dataIndex: "description",  // The field for description
+      render: (text) => {
+        return <div>{text}</div>;  // Render the description
+      },
+    },
     {
       title: "Endpoint",
       dataIndex: "endpoint",
@@ -205,7 +179,7 @@ const PermissionRoleManager = ({ currentUser, apiBaseUrl }) => {
   useEffect(() => {
     fetchRoles();
     fetchPermissions(currentPage, pageSize); // Fetch permissions based on current page
-  }, [currentPage, pageSize]);  // Only trigger fetchPermissions on currentPage or pageSize change
+  }, [currentPage, pageSize]);
 
   return (
     <div>
@@ -214,14 +188,23 @@ const PermissionRoleManager = ({ currentUser, apiBaseUrl }) => {
           <Input
             placeholder="Search by Endpoint"
             value={searchKeyword}
-            onChange={handleSearch}
+            onChange={(e) => setSearchKeyword(e.target.value)}
             style={{ width: "100%" }}
           />
         </Col>
         <Col span={8}>
           <Button
             type="primary"
-            onClick={handleBulkAssign}
+            onClick={handleSearch} // Trigger search on button click
+            style={{ marginLeft: "10px" }}
+          >
+            Search
+          </Button>
+        </Col>
+        <Col span={8}>
+          <Button
+            type="primary"
+            onClick={handleBulkAssign} // Trigger bulk assign roles
             style={{ marginLeft: "10px" }}
           >
             Bulk Assign Roles
@@ -232,7 +215,7 @@ const PermissionRoleManager = ({ currentUser, apiBaseUrl }) => {
       <Table
         rowKey="id"
         columns={columns}
-        dataSource={permissions}
+        dataSource={filteredPermissions} // Display filtered permissions
         loading={loading}
         pagination={false}
         style={{ marginTop: "20px" }}

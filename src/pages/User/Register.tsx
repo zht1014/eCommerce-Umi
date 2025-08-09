@@ -14,7 +14,7 @@ const Register: React.FC = () => {
         }
 
         try {
-            const res = await axios.post('http://146.190.90.142:30080/users/api/user', {
+            const res = await axios.post('http://167.71.210.84:30080/users/api/user', {
                 username: values.username,
                 email: values.email,
                 password: values.password
@@ -26,7 +26,7 @@ const Register: React.FC = () => {
                     message.error('Registration succeeded but userId not returned.');
                     return;
                 }
-                const loginRes = await axios.post('http://146.190.90.142:30080/users/login', {
+                const loginRes = await axios.post('http://167.71.210.84:30080/users/login', {
                     username: values.username,
                     password: values.password,
                 });

@@ -6,8 +6,6 @@ import { EnvironmentOutlined, FileDoneOutlined } from "@ant-design/icons";
 import axios from "axios";
 
 const Center: React.FC = () => {
-    const [state, setState] = useState<ProFieldFCMode>('read');
-    const [plain, setPlain] = useState<boolean>(false);
     const { initialState } = useModel('@@initialState');
     const localUserStr = localStorage.getItem('currentUser');
     const currentUser = localUserStr ? JSON.parse(localUserStr) : null;
@@ -31,7 +29,7 @@ const Center: React.FC = () => {
             return;
         }
         try {
-            const res = await axios.get(`http://146.190.90.142:30080/users/api/addresses/user/${currentUser.id}`, {
+            const res = await axios.get(`http://167.71.210.84:30080/users/api/addresses/user/${currentUser.id}`, {
                 headers: {
                     'Authorization': 'Bearer ' + currentUser.token,
                 },
@@ -48,7 +46,7 @@ const Center: React.FC = () => {
         if (!currentUser) return;
         setLoadingOrders(true);
         try {
-            const res = await axios.get(`http://146.190.90.142:30080/orders/orders/user/${currentUser.id}`, {
+            const res = await axios.get(`http://167.71.210.84:30080/orders/orders/user/${currentUser.id}`, {
                 headers: {
                     'Authorization': 'Bearer ' + currentUser.token,
                 },
@@ -85,7 +83,7 @@ const Center: React.FC = () => {
                 updateDatetime: new Date().toISOString(),
             };
 
-            const res = await axios.post('http://146.190.90.142:30080/users/api/addresses', payload, {
+            const res = await axios.post('http://167.71.210.84:30080/users/api/addresses', payload, {
                 headers: {
                     'Authorization': 'Bearer ' + currentUser.token,
                 },

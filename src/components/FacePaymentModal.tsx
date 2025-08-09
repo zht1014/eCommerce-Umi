@@ -4,13 +4,28 @@ import Webcam from 'react-webcam';
 import axios from 'axios';
 import { Modal, Button } from 'antd';
 
-const FacePaymentModal = ({ visible, onClose }: { visible: boolean; onClose: () => void }) => {
+const FacePaymentModal = ({
+  visible,
+  onClose,
+  productid,
+  quantity,
+  shippingAddress,
+  userid,
+  paymentMethod
+}: {
+  visible: boolean;
+  onClose: () => void;
+  productid: number;
+  quantity: number;
+  shippingAddress: string;
+  userid: number;
+  paymentMethod: string
+}) => {
   const webcamRef = useRef(null);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('');
   const [loading, setLoading] = useState(false);
   const [paymentData, setPaymentData] = useState(null);
-  // 应该传过来更多用户数据，商品价格和token，人脸认证通过之后使用payment和order接口
 
   const localUserStr = localStorage.getItem('currentUser');
   const currentUser = localUserStr ? JSON.parse(localUserStr) : null;
@@ -35,9 +50,15 @@ const FacePaymentModal = ({ visible, onClose }: { visible: boolean; onClose: () 
 
       const formData = new FormData();
       formData.append('image', blob, 'face.jpg');
+      // Append additional order details
+      formData.append('productId', productid);
+      formData.append('quantity', quantity.toString());
+      formData.append('shippingAddress', shippingAddress);
+      formData.append('userId', userid.toString());
+      formData.append('paymentMethod', paymentMethod);
 
       const response = await axios.post(
-        'http://146.190.90.142:30080/payments/api/face-recognition/faceVerify',
+        'http://167.71.210.84:30080/payments/api/face-recognition/faceVerify',
         formData,
         {
           headers: {
@@ -52,8 +73,7 @@ const FacePaymentModal = ({ visible, onClose }: { visible: boolean; onClose: () 
       setMessage(data.message);
       setMessageType('success');
     } catch (error) {
-      const errMsg =
-        error.response?.data?.message || error.response?.data?.error || 'Unexpected error occurred.';
+      const errMsg = error.response?.data?.message || error.response?.data?.error || 'Unexpected error occurred.';
       setMessage(errMsg);
       setMessageType('error');
     } finally {
@@ -118,3 +138,4 @@ const FacePaymentModal = ({ visible, onClose }: { visible: boolean; onClose: () 
 };
 
 export default FacePaymentModal;
+

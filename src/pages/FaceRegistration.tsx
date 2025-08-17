@@ -25,9 +25,11 @@ const FaceRegistration = () => {
   const [registerResults, setRegisterResults] = useState({});
   const [step, setStep] = useState(0);
 
+
   const stepLabels = ["Front Face", "Left Profile", "Right Profile"];
   const stepKeys = ["front", "left", "right"];
 
+  console.log(queryParams)
   const capturePhoto = () => {
     if (!webcamRef.current) return null;
     return webcamRef.current.getScreenshot();
@@ -56,6 +58,7 @@ const FaceRegistration = () => {
       const formData = new FormData();
       formData.append("image", blob, `${label}.jpg`);
       formData.append("userId", userId);
+      console.log(userId)
 
       const response = await axios.post(
         "http://167.71.210.84:30080/payments/api/face-recognition/register",

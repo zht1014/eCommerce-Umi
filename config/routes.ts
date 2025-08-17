@@ -1,6 +1,4 @@
-﻿import { layout } from "@/app";
-import component from "@/locales/bn-BD/component";
-import { Children } from "react";
+﻿
 
 /**
  * @name umi 的路由配置
@@ -17,7 +15,7 @@ import { Children } from "react";
 export default [
   {
     path: '/face-registration',
-    component: './FaceRegistration',
+    component: './faceregistration',
     layout: false,
   },
 
@@ -70,23 +68,6 @@ export default [
     name: 'AdminProducts',
     icon: 'product',
     component: './Admin/AdminProducts'
-  },
-  {
-    path: '/admin',
-    name: 'admin',
-    icon: 'crown',
-    access: 'canAdmin',
-    routes: [
-      {
-        path: '/admin',
-        redirect: '/admin/sub-page',
-      },
-      {
-        path: '/admin/sub-page',
-        name: 'sub-page',
-        component: './Admin',
-      },
-    ],
   },
   /* {
     name: 'list.table-list',

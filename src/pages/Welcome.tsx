@@ -623,7 +623,6 @@ const Welcome: React.FC = () => {
               </div>
             </Modal>
 
-
             {isFacePayment && (
               <FacePaymentModal
                 visible={isFacePayment}

@@ -7,6 +7,7 @@ import React from 'react';
 import axios from 'axios';
 
 const Register: React.FC = () => {
+
     const handleRegister = async (values: any) => {
         if (values.password !== values.confirmPassword) {
             message.error('Passwords do not match');
@@ -22,6 +23,7 @@ const Register: React.FC = () => {
 
             if (res.data.success) {
                 const userId = res.data.data?.userId;
+
                 if (!userId) {
                     message.error('Registration succeeded but userId not returned.');
                     return;
@@ -36,6 +38,19 @@ const Register: React.FC = () => {
                     message.error('Login after registration failed.');
                     return;
                 }
+
+                console.log(res)
+
+                const assignRole = await axios.post('http://167.71.210.84:30080/users/api/user-roles', [{
+                    id: 0,
+                    userId: userId,
+                    roleId: 7
+                }],
+                    {
+                        headers: {
+                            'Authorization': 'Bearer ' + token
+                        },
+                    })
 
                 message.success('Registration successful! Proceeding to face registration...');
                 history.push(`/face-registration?userId=${userId}&token=${token}`);

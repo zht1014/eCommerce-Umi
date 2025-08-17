@@ -3,7 +3,6 @@ import { Table, Button, message, Checkbox, Input, Row, Col, Pagination } from "a
 import axios from "axios";
 
 const PermissionRoleManager = ({ currentUser, apiBaseUrl }) => {
-  const [permissions, setPermissions] = useState([]);  // Store all permissions
   const [filteredPermissions, setFilteredPermissions] = useState([]);  // Store filtered permissions
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -47,7 +46,7 @@ const PermissionRoleManager = ({ currentUser, apiBaseUrl }) => {
 
       if (res.data.success) {
         const permissionsData = res.data.data.content || [];
-        setPermissions(permissionsData);  // Store all permissions
+
         setFilteredPermissions(permissionsData);  // Initially display all permissions
         setTotal(res.data.data.totalElements || 0); // Adjust total count
       }

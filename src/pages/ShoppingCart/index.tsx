@@ -21,7 +21,6 @@ const ShoppingCart: React.FC = () => {
   const [selectedProductForOrder, setSelectedProductForOrder] = useState<CartItem | null>(null);
   const [selectedQuantity, setSelectedQuantity] = useState<number>(1);
   const [isFacePayment, setIsFacePayment] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<string>('WeChat');
   const [addresses, setAddresses] = useState<string[]>([]);  // For storing user addresses
   const [selectedAddress, setSelectedAddress] = useState<string>('');  // Store selected address
 

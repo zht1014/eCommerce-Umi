@@ -15,7 +15,7 @@
 export default [
   {
     path: '/face-registration',
-    component: './faceregistration',
+    component: './FaceRegistration',
     layout: false,
   },
 

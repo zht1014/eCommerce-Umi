@@ -126,7 +126,7 @@ const Center: React.FC = () => {
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
-                        gap: 24, 
+                        gap: 24,
                         marginBottom: 50,
                     }}
                 >
@@ -238,27 +238,31 @@ const Center: React.FC = () => {
                 footer={null}
                 width={700}
             >
-                {addresses.length > 0 ? (
-                    <List
-                        itemLayout="vertical"
-                        dataSource={addresses}
-                        renderItem={(address) => (
-                            <List.Item key={address.id}>
-                                <List.Item.Meta
-                                    title={`Address ID: ${address.id}`}
-                                    description={`${address.street}, ${address.city}, ${address.state}`}
-                                />
-                            </List.Item>
-                        )}
-                    />
-                ) : (
-                    <div>
-                        <p>No addresses found. Please add a new address:</p>
-                        <Button onClick={() => setNewAddressModalVisible(true)} type="primary">
-                            Add New Address
-                        </Button>
-                    </div>
-                )}
+                <div>
+                    {addresses.length > 0 ? (
+                        <List
+                            itemLayout="vertical"
+                            dataSource={addresses}
+                            renderItem={(address) => (
+                                <List.Item key={address.id}>
+                                    <List.Item.Meta
+                                        title={`Address ID: ${address.id}`}
+                                        description={`${address.street}, ${address.city}, ${address.state}`}
+                                    />
+                                </List.Item>
+                            )}
+                        />
+                    ) : (
+                        <div>
+                            <p>No addresses found. Please add a new address:</p>
+                        </div>
+                    )}
+
+                    <Button onClick={() => setNewAddressModalVisible(true)} type="primary">
+                        Add New Address
+                    </Button>
+                </div>
+
             </Modal>
 
             {/* 新增地址 Modal */}

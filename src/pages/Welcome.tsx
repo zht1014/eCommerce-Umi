@@ -32,11 +32,6 @@ export interface Product {
   updateDatetime: string | null;
 }
 
-const ProCardWrap = styled.span`
-  .ant-pro-card-body{
-    padding: 8px;
-  }
-`
 
 const ItemCard = styled.div`
   width: 100%;
@@ -113,7 +108,7 @@ const Welcome: React.FC = () => {
   const localUserStr = localStorage.getItem('currentUser');
   const currentUser = localUserStr ? JSON.parse(localUserStr) : null;
   console.log(currentUser)
-
+  console.log(loading)
 
 
   const handleFilter = async (nextFilters?: Filters) => {
@@ -444,6 +439,7 @@ const Welcome: React.FC = () => {
               }}
               onChange={(e) => {
                 setCurrentKeyword(e.target.value)
+                console.log(currentKeyword)
               }}
             />
 

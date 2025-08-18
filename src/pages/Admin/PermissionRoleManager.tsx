@@ -37,6 +37,7 @@ const PermissionRoleManager = ({ currentUser, apiBaseUrl }) => {
           page,
           size,
           sortBy: 'createDatetime',
+          endpoint: searchKeyword,
           direction: 'desc',
         },
         headers: {
@@ -171,6 +172,7 @@ const PermissionRoleManager = ({ currentUser, apiBaseUrl }) => {
 
       if (res.data.success) {
         const permissionsData = res.data.data.content || [];
+        console.log(permissionsData)
         setFilteredPermissions(permissionsData);  // Update filtered permissions
         setTotal(res.data.data.totalElements || 0); // Update total count
 
@@ -221,6 +223,7 @@ const PermissionRoleManager = ({ currentUser, apiBaseUrl }) => {
       render: (_, record) => {
         const permissionId = record.id;
         const checkedValues = selectedRoles[permissionId] || [];  // Get selected roles for the current permission
+        console.log('Checked values for permissionId:', checkedValues);
         return (
           <div>
             <Checkbox.Group

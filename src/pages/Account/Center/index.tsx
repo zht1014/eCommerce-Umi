@@ -1,4 +1,4 @@
-import { PageContainer, ProField, ProFieldFCMode } from "@ant-design/pro-components";
+import { PageContainer, ProField} from "@ant-design/pro-components";
 import { useModel } from "@umijs/max";
 import { Avatar, Card, Descriptions, Button, Modal, List, Tag, message, Tooltip } from "antd";
 import { useState } from "react";

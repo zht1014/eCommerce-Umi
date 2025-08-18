@@ -159,7 +159,7 @@ const PermissionRoleManager = ({ currentUser, apiBaseUrl }) => {
       // Make GET request to fetch filtered permissions based on the search keyword
       const res = await axios.get(`${apiBaseUrl}/api/permissions`, {
         params: {
-          page: currentPage - 1, // Assuming currentPage starts from 1 but the API expects 0-based indexing
+          page: currentPage, // Assuming currentPage starts from 1 but the API expects 0-based indexing
           size: pageSize,
           endpoint: searchKeyword,  // Pass searchKeyword as 'endpoint'
           sortBy: 'createDatetime',
@@ -223,7 +223,7 @@ const PermissionRoleManager = ({ currentUser, apiBaseUrl }) => {
       render: (_, record) => {
         const permissionId = record.id;
         const checkedValues = selectedRoles[permissionId] || [];  // Get selected roles for the current permission
-        console.log('Checked values for permissionId:', checkedValues);
+        //console.log('Checked values for permissionId:', checkedValues);
         return (
           <div>
             <Checkbox.Group

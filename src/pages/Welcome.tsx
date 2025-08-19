@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import { ShoppingCartOutlined, ShoppingOutlined } from '@ant-design/icons';
 import Chat from './Chat/Chat';
 import FacePaymentModal from '@/components/FacePaymentModal';
+import { filter } from 'lodash';
 
 
 /**
@@ -113,23 +114,26 @@ const Welcome: React.FC = () => {
 
   const handleFilter = async (nextFilters?: Filters) => {
     const appliedFilters = nextFilters || filters;
+    setFilters({ ...appliedFilters});
     setLoading(true);
     try {
-      const response = await axios.get(`http://167.71.210.84:30080/products/products/filter`, {
+      const response = await axios.get(`http://167.71.210.84:30080/products/products/sort`, {
         params: {
-          name: appliedFilters.name || '',
-          category: appliedFilters.category || '',
-          minPrice: appliedFilters.minPrice || '',
-          maxPrice: appliedFilters.maxPrice || '',
-          rating: appliedFilters.rating || '',
+          name: appliedFilters.name,
+          minPrice: appliedFilters.minPrice,
+          maxPrice: appliedFilters.maxPrice,
+          category: appliedFilters.category,
+          rating: appliedFilters.rating,
+          page: currentPage,
+          size: pageSize
         },
         headers: {
           'Authorization': 'Bearer ' + currentUser.token,
         },
       });
       if (response.data.success) {
-        setProducts(response.data.data || []);
-        setTotal(response.data.data.length);
+        setProducts(response.data.data.records || []);
+        setTotal(response.data.data.total || 0);
       } else {
         message.error('No products found');
       }
@@ -145,14 +149,23 @@ const Welcome: React.FC = () => {
   const handleSearch = async (keyword: string) => {
     setLoading(true);
     try {
-      const response = await axios.get(`http://167.71.210.84:30080/products/products/search?keyword=${keyword}`, {
+      const response = await axios.get(`http://167.71.210.84:30080/products/products/sort`, {
+        params: {
+          name: filters.name,
+          minPrice: filters.minPrice,
+          maxPrice: filters.maxPrice,
+          category: filters.category,
+          rating: filters.rating,
+          page: currentPage,
+          size: pageSize
+        },
         headers: {
           'Authorization': 'Bearer ' + currentUser.token,
         },
       });
       if (response.data.success) {
-        setProducts(response.data.data || []);
-        setTotal(response.data.data.length);
+        setProducts(response.data.data.records || []);
+        setTotal(response.data.data.total || 0);
       } else {
         message.error('No products found');
       }
@@ -167,7 +180,21 @@ const Welcome: React.FC = () => {
   const fetchProductsByPage = async (page = 1, size = 10) => {
     setLoading(true);
     try {
-      const response = await axios.get(`http://167.71.210.84:30080/products/products/page?page=${page}&size=${size}`, {
+      /* const response = await axios.get(`http://167.71.210.84:30080/products/products/page?page=${page}&size=${size}`, {
+        headers: {
+          'Authorization': 'Bearer ' + currentUser.token,
+        },
+      }); */
+      const response = await axios.get(`http://167.71.210.84:30080/products/products/sort`, {
+        params: {
+          name: filters.name,
+          minPrice: filters.minPrice,
+          maxPrice: filters.maxPrice,
+          category: filters.category,
+          rating: filters.rating,
+          page: page,
+          size: size
+        },
         headers: {
           'Authorization': 'Bearer ' + currentUser.token,
         },
@@ -610,7 +637,7 @@ const Welcome: React.FC = () => {
               footer={null}
             >
               <div>
-                <Button type="primary" onClick={handleNormalPayment} style={{ width: '100%' , marginBottom: 10}}>
+                <Button type="primary" onClick={handleNormalPayment} style={{ width: '100%', marginBottom: 10 }}>
                   Normal Payment
                 </Button>
                 <Button type="primary" onClick={handleFacePayment} style={{ width: '100%' }}>
@@ -628,7 +655,7 @@ const Welcome: React.FC = () => {
                 shippingAddress={selectedAddress}
                 userid={currentUser.id}
                 paymentMethod="WeChat"  // 可以根据需要设置支付方式
-                //useFaceRecognition={true}  
+              //useFaceRecognition={true}  
               />
 
             )}

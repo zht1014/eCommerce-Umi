@@ -153,13 +153,14 @@ const PermissionRoleManager = ({ currentUser, apiBaseUrl }) => {
   };
 
   const handleSearch = async () => {
+    setCurrentPage(1)
     setLoading(true);  // Show loading indicator
 
     try {
       // Make GET request to fetch filtered permissions based on the search keyword
       const res = await axios.get(`${apiBaseUrl}/api/permissions`, {
         params: {
-          page: currentPage, // Assuming currentPage starts from 1 but the API expects 0-based indexing
+          page: 1, // Assuming currentPage starts from 1 but the API expects 0-based indexing
           size: pageSize,
           endpoint: searchKeyword,  // Pass searchKeyword as 'endpoint'
           sortBy: 'createDatetime',

@@ -16,7 +16,7 @@ import { UploadOutlined, DeleteOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 
-const API_BASE = "https://104.248.98.53/products";
+const API_BASE = "https://216903ddb793.ngrok-free.app/products";
 const IMGBB_API_KEY = "4c1937ac35a3505be09b861109eb14d3";
 
 const AdminProducts = () => {

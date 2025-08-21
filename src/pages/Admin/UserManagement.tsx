@@ -8,7 +8,7 @@ const { Title, Text } = Typography;
 const UserManagement = () => {
   const localUserStr = localStorage.getItem("currentUser");
   const currentUser = localUserStr ? JSON.parse(localUserStr) : null;
-  const apiBaseUrl = "https://104.248.98.53/users";
+  const apiBaseUrl = "https://216903ddb793.ngrok-free.app/users";
 
   if (!currentUser || !currentUser.token) {
     return (

@@ -58,7 +58,7 @@ const FacePaymentModal = ({
       formData.append('paymentMethod', paymentMethod);
 
       const response = await axios.post(
-        'http://167.71.210.84:30080/payments/api/face-recognition/faceVerify',
+        'https://104.248.98.53/payments/api/face-recognition/faceVerify',
         formData,
         {
           headers: {

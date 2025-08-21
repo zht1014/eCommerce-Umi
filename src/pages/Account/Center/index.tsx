@@ -29,7 +29,7 @@ const Center: React.FC = () => {
             return;
         }
         try {
-            const res = await axios.get(`http://167.71.210.84:30080/users/api/addresses/user/${currentUser.id}`, {
+            const res = await axios.get(`https://104.248.98.53/users/api/addresses/user/${currentUser.id}`, {
                 headers: {
                     'Authorization': 'Bearer ' + currentUser.token,
                 },
@@ -46,7 +46,7 @@ const Center: React.FC = () => {
         if (!currentUser) return;
         setLoadingOrders(true);
         try {
-            const res = await axios.get(`http://167.71.210.84:30080/orders/orders/user/${currentUser.id}`, {
+            const res = await axios.get(`https://104.248.98.53/orders/orders/user/${currentUser.id}`, {
                 headers: {
                     'Authorization': 'Bearer ' + currentUser.token,
                 },
@@ -83,7 +83,7 @@ const Center: React.FC = () => {
                 updateDatetime: new Date().toISOString(),
             };
 
-            const res = await axios.post('http://167.71.210.84:30080/users/api/addresses', payload, {
+            const res = await axios.post('https://104.248.98.53/users/api/addresses', payload, {
                 headers: {
                     'Authorization': 'Bearer ' + currentUser.token,
                 },

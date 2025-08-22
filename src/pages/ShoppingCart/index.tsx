@@ -26,7 +26,7 @@ const ShoppingCart: React.FC = () => {
 
   const localUserStr = localStorage.getItem('currentUser');
   const currentUser = localUserStr ? JSON.parse(localUserStr) : null;
-
+  console.log(currentUser.id)
   // Fetch cart items
   const fetchCartItems = async () => {
     setLoading(true);

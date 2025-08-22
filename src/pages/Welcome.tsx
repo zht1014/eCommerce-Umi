@@ -218,8 +218,6 @@ const Welcome: React.FC = () => {
 
   const handleAddToCart = async (product: Product) => {
     try {
-
-
       if (!currentUser) {
         message.warning('Please log in first!');
         return;

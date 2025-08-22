@@ -29,6 +29,7 @@ const Center: React.FC = () => {
             return;
         }
         try {
+            console.log(currentUser)
             const res = await axios.get(`https://104-248-98-53.nip.io/users/api/addresses/user/${currentUser.id}`, {
                 headers: {
                     'Authorization': 'Bearer ' + currentUser.token,

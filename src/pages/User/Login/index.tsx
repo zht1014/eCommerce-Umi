@@ -138,12 +138,13 @@ const Login: React.FC = () => {
         console.log('Response:', userData);
 
         const userInfo = {
-          name: userData.username || values.username,
+          name: userData.data.username || values.username,
           token: token,
-          id: userData.userId,
-          email: userData.email,
+          id: userData.data.userId,
+          email: userData.data.email,
         };
 
+        console.log(userInfo)
 
         // 保存到 localStorage
         localStorage.setItem('currentUser', JSON.stringify(userInfo));
@@ -392,7 +393,7 @@ const Login: React.FC = () => {
             </div>
             <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between' }}>
               <a onClick={() => history.push('/user/register')}>
-              Register
+                Register
               </a>
               <a>Forgot password?</a>
             </div>

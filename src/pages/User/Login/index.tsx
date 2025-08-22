@@ -117,7 +117,7 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (values: API.LoginParams) => {
     try {
-      const msg = await axios.post('https://216903ddb793.ngrok-free.app/users/login', {
+      const msg = await axios.post('https://104-248-98-53.nip.io/users/login', {
         username: values.username,
         password: values.password
       })
@@ -128,13 +128,13 @@ const Login: React.FC = () => {
         });
         message.success(defaultLoginSuccessMessage);
         const token = msg.data.data
-        const userResponse = await axios.get('https://216903ddb793.ngrok-free.app/users/getCurrentUserInfo', {
+        const userResponse = await axios.get('https://104-248-98-53.nip.io/users/getCurrentUserInfo', {
           headers: {
             'Authorization': 'Bearer ' + token,
           },
         });
 
-        const userData = userResponse.data.data;
+        const userData = userResponse.data;
         console.log('Response:', userData);
 
         const userInfo = {

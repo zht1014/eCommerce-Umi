@@ -117,7 +117,7 @@ const Welcome: React.FC = () => {
     setFilters({ ...appliedFilters});
     setLoading(true);
     try {
-      const response = await axios.get(`https://216903ddb793.ngrok-free.app/products/products/sort`, {
+      const response = await axios.get(`https://104-248-98-53.nip.io/products/products/sort`, {
         params: {
           name: appliedFilters.name,
           minPrice: appliedFilters.minPrice,
@@ -149,7 +149,7 @@ const Welcome: React.FC = () => {
   const handleSearch = async (keyword: string) => {
     setLoading(true);
     try {
-      const response = await axios.get(`https://216903ddb793.ngrok-free.app/products/products/sort`, {
+      const response = await axios.get(`https://104-248-98-53.nip.io/products/products/sort`, {
         params: {
           name: filters.name,
           minPrice: filters.minPrice,
@@ -180,12 +180,12 @@ const Welcome: React.FC = () => {
   const fetchProductsByPage = async (page = 1, size = 10) => {
     setLoading(true);
     try {
-      /* const response = await axios.get(`https://216903ddb793.ngrok-free.app/products/products/page?page=${page}&size=${size}`, {
+      /* const response = await axios.get(`https://104-248-98-53.nip.io/products/products/page?page=${page}&size=${size}`, {
         headers: {
           'Authorization': 'Bearer ' + currentUser.token,
         },
       }); */
-      const response = await axios.get(`https://216903ddb793.ngrok-free.app/products/products/sort`, {
+      const response = await axios.get(`https://104-248-98-53.nip.io/products/products/sort`, {
         params: {
           name: filters.name,
           minPrice: filters.minPrice,
@@ -200,6 +200,7 @@ const Welcome: React.FC = () => {
         },
       });
       if (response.data.success) {
+        console.log(response)
         setProducts(response.data.data.records || []);
         setTotal(response.data.data.total || 0);
       }
@@ -224,7 +225,7 @@ const Welcome: React.FC = () => {
         return;
       }
 
-      const res = await axios.post('https://216903ddb793.ngrok-free.app/shoppingcarts/cart/add', {
+      const res = await axios.post('https://104-248-98-53.nip.io/shoppingcarts/cart/add', {
         userId: currentUser.id,
         productId: product.id,
         quantity: 1,
@@ -250,7 +251,7 @@ const Welcome: React.FC = () => {
     setOrderModalVisible(true)
     setSelectedProductForOrder(product);
     setSelectedQuantity(1);
-    const res = await axios.get(`https://216903ddb793.ngrok-free.app/users/api/addresses/user/${currentUser.id}`, {
+    const res = await axios.get(`https://104-248-98-53.nip.io/users/api/addresses/user/${currentUser.id}`, {
       headers: {
         'Authorization': 'Bearer ' + currentUser.token,
       },
@@ -266,8 +267,8 @@ const Welcome: React.FC = () => {
 
   const getRecommendation = async () => {
     try {
-      /* const response = await axios.get(`https://216903ddb793.ngrok-free.app/products/products/recommend/user/${currentUser.id}/top`) */
-      const response = await axios.get(`https://216903ddb793.ngrok-free.app/products/products/recommend/user/1/top`, {
+      /* const response = await axios.get(`https://104-248-98-53.nip.io/products/products/recommend/user/${currentUser.id}/top`) */
+      const response = await axios.get(`https://104-248-98-53.nip.io/products/products/recommend/user/1/top`, {
         headers: {
           'Authorization': 'Bearer ' + currentUser.token,
         },
@@ -292,7 +293,7 @@ const Welcome: React.FC = () => {
     if (!selectedProductForOrder) return;
 
     try {
-      const response = await axios.post('https://216903ddb793.ngrok-free.app/orders/orders/direct', {
+      const response = await axios.post('https://104-248-98-53.nip.io/orders/orders/direct', {
         "productId": selectedProductForOrder.id,
         "quantity": selectedQuantity,
         "useFaceRecognition": false,
@@ -331,7 +332,7 @@ const Welcome: React.FC = () => {
   const fetchFeedback = async (productId: number) => {
     try {
       setLoadingFeedback(true);
-      const response = await axios.get(`https://216903ddb793.ngrok-free.app/products/feedback/product/${productId}`, {
+      const response = await axios.get(`https://104-248-98-53.nip.io/products/feedback/product/${productId}`, {
         headers: {
           'Authorization': 'Bearer ' + currentUser.token,
         },
@@ -358,7 +359,7 @@ const Welcome: React.FC = () => {
     if (!relatedMap[productId]) {
       setLoadingRelated(true);
       try {
-        const res = await axios.get(`https://216903ddb793.ngrok-free.app/products/products/recommend/related/${productId}`, {
+        const res = await axios.get(`https://104-248-98-53.nip.io/products/products/recommend/related/${productId}`, {
           headers: {
             'Authorization': 'Bearer ' + currentUser.token,
           },
@@ -377,7 +378,7 @@ const Welcome: React.FC = () => {
   const getProduct = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('https://216903ddb793.ngrok-free.app/products/products', {
+      const res = await axios.get('https://104-248-98-53.nip.io/products/products', {
         headers: {
           'Authorization': 'Bearer ' + currentUser.token,
         },

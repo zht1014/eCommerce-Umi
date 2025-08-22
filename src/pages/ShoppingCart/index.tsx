@@ -31,7 +31,7 @@ const ShoppingCart: React.FC = () => {
   const fetchCartItems = async () => {
     setLoading(true);
     try {
-      const cartRes = await axios.get(`https://216903ddb793.ngrok-free.app/shoppingcarts/cart/items?userId=${currentUser.id}`, {
+      const cartRes = await axios.get(`https://104-248-98-53.nip.io/shoppingcarts/cart/items?userId=${currentUser.id}`, {
         headers: {
           'Authorization': 'Bearer ' + currentUser.token,
         },
@@ -40,7 +40,7 @@ const ShoppingCart: React.FC = () => {
 
       const detailedCart = await Promise.all(
         cartData.map(async (item: any) => {
-          const productRes = await axios.get(`https://216903ddb793.ngrok-free.app/products/products/${item.productId}`, {
+          const productRes = await axios.get(`https://104-248-98-53.nip.io/products/products/${item.productId}`, {
             headers: {
               'Authorization': 'Bearer ' + currentUser.token,
             },
@@ -69,7 +69,7 @@ const ShoppingCart: React.FC = () => {
   // Fetch user addresses
   const fetchUserAddresses = async () => {
     try {
-      const res = await axios.get(`https://216903ddb793.ngrok-free.app/users/api/addresses/user/${currentUser.id}`, {
+      const res = await axios.get(`https://104-248-98-53.nip.io/users/api/addresses/user/${currentUser.id}`, {
         headers: {
           'Authorization': 'Bearer ' + currentUser.token,
         },
@@ -102,7 +102,7 @@ const ShoppingCart: React.FC = () => {
     }
 
     try {
-      const response = await axios.post('https://216903ddb793.ngrok-free.app/orders/orders/fromCart', {
+      const response = await axios.post('https://104-248-98-53.nip.io/orders/orders/fromCart', {
         userId: currentUser.id,
         shippingAddress: selectedAddress,
         paymentMethod: "WeChat"

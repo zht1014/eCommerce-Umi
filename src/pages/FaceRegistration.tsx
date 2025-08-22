@@ -61,7 +61,7 @@ const FaceRegistration = () => {
       console.log(userId)
 
       const response = await axios.post(
-        "https://216903ddb793.ngrok-free.app/payments/api/face-recognition/register",
+        "https://104-248-98-53.nip.io/payments/api/face-recognition/register",
         formData,
         {
           headers: {
